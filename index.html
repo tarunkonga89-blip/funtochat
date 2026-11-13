@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PingMe</title>
-  <meta name="description" content="PingMe — a playful Messenger-style chat app with real accounts, realtime messages and photo sharing." />
+  <title>Chattr</title>
+  <meta name="description" content="Chattr — a playful Messenger-style chat app with real accounts, realtime messages and photo sharing." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1003,7 +1003,7 @@
         <circle cx="21" cy="13.6" r="1.7" fill="#fff"/>
         <path d="M11.4 18.2c1.2 1.7 3 2.5 4.6 2.5s3.4-.8 4.6-2.5" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/>
       </svg>
-      <span class="brand-name"><span class="fun">Ping</span><span class="to">Me</span></span>
+      <span class="brand-name"><span class="fun">Chat</span><span class="to">tr</span></span>
     </div>
 
     <div class="sidebar-head">
@@ -1051,7 +1051,7 @@
     <div class="chat-empty" id="chatEmpty">
       <div>
         <div class="big" aria-hidden="true">💬</div>
-        <h2>Welcome to PingMe!</h2>
+        <h2>Welcome to Chattr!</h2>
         <p>Pick a chat on the left and start the fun.<br />Messages are saved on this device (demo).</p>
       </div>
     </div>
@@ -1259,7 +1259,7 @@
         <circle cx="21" cy="13.6" r="1.7" fill="#fff"/>
         <path d="M11.4 18.2c1.2 1.7 3 2.5 4.6 2.5s3.4-.8 4.6-2.5" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/>
       </svg>
-      <span class="brand-name"><span class="fun">Ping</span><span class="to">Me</span></span>
+      <span class="brand-name"><span class="fun">Chat</span><span class="to">tr</span></span>
     </div>
     <p class="auth-tagline">Chat, share, laugh. Sign in to keep your chats in sync.</p>
 
@@ -1513,13 +1513,13 @@ function buildConversations() {
       pinned: true, unread: 2, muted: false, blocked: false,
       about: 'Product designer · coffee first ☕',
       messages: [
-        { id: 'm1a', from: 'them', type: 'text', time: minutesAgo(190), text: 'Hey Aarav! Did you try the new PingMe app? 😍', reactions: {} },
+        { id: 'm1a', from: 'them', type: 'text', time: minutesAgo(190), text: 'Hey Aarav! Did you try the new Chattr app? 😍', reactions: {} },
         { id: 'm1b', from: 'me', type: 'text', time: minutesAgo(186), text: 'Just did — the reactions are so smooth!', reactions: { '❤️': 1 }, status: 'seen' },
         { id: 'm1c', from: 'them', type: 'text', time: minutesAgo(180), text: 'Right?? Drop a ❤️ on this one 😄', reactions: { '😄': 1 },
           replyTo: { name: 'Aarav Sharma', from: 'me', text: 'Just did — the reactions are so smooth!' } },
         { id: 'm1d', from: 'them', type: 'image', time: minutesAgo(120), image: artImage('#F59E0B', '#EC4899', '🌅', 'Goa sunset'), text: 'Look at this from Goa last weekend 😍', reactions: { '😍': 2 } },
         { id: 'm1e', from: 'me', type: 'text', time: minutesAgo(115), text: 'That is gorgeous! Take me next time 🌴', reactions: {}, status: 'seen' },
-        { id: 'm1f', from: 'them', type: 'text', time: minutesAgo(32), text: 'Btw here is the itinerary: https://pingme.example.com/goa-trip 🗺️', reactions: {} },
+        { id: 'm1f', from: 'them', type: 'text', time: minutesAgo(32), text: 'Btw here is the itinerary: https://chattr.example.com/goa-trip 🗺️', reactions: {} },
         { id: 'm1g', from: 'them', type: 'text', time: minutesAgo(30), text: 'Tell me if Saturday works for you!', reactions: {} },
       ],
     },
@@ -1604,7 +1604,7 @@ const Storage = {
       const raw = localStorage.getItem(this.KEY);
       return raw ? JSON.parse(raw) : null;
     } catch (err) {
-      console.warn('PingMe: could not read localStorage', err);
+      console.warn('Chattr: could not read localStorage', err);
       return null;
     }
   },
@@ -1614,13 +1614,13 @@ const Storage = {
     try {
       localStorage.setItem(this.KEY, JSON.stringify(state));
     } catch (err) {
-      console.warn('PingMe: could not save to localStorage', err);
+      console.warn('Chattr: could not save to localStorage', err);
     }
   },
 };
 
 /* ------------------------------------------------------------
-   PingBot — the AI chat. It lives on this device (localStorage),
+   ChattrBot — the AI chat. It lives on this device (localStorage),
    in demo mode and when signed in. src/live.js plugs in the real
    AI (Supabase Edge Function → Google Gemini free tier).
    ------------------------------------------------------------ */
@@ -1631,12 +1631,12 @@ const Bot = {
   build() {
     return {
       id: BOT_ID, bot: true,
-      name: 'PingBot', color: '#7C3AED', online: true, lastSeen: 'Always here',
+      name: 'ChattrBot', color: '#7C3AED', online: true, lastSeen: 'Always here',
       pinned: true, unread: 0, muted: false, blocked: false,
       about: 'Your AI buddy 🤖 — ask me anything, get message ideas or a joke. Powered by Google Gemini.',
       messages: [{
         id: 'bot_hello', from: 'them', type: 'text', time: new Date().toISOString(), reactions: {},
-        text: 'Hey! I’m PingBot 🤖✨ Ask me anything — reply ideas, jokes, plans for the weekend. What’s up?',
+        text: 'Hey! I’m ChattrBot 🤖✨ Ask me anything — reply ideas, jokes, plans for the weekend. What’s up?',
       }],
     };
   },
@@ -2214,7 +2214,7 @@ function renderInfo(conv) {
   const st = $('#infoStatus');
   st.textContent = conv.online ? 'Active now' : (conv.lastSeen || 'Offline');
   st.classList.toggle('offline', !conv.online);
-  $('#infoAbout').textContent = conv.about || 'Hey there! I am using PingMe.';
+  $('#infoAbout').textContent = conv.about || 'Hey there! I am using Chattr.';
   $('#blockBtn').classList.toggle('hidden', !!conv.bot);
 
   const mute = $('#muteBtn');
@@ -2393,14 +2393,14 @@ function viewerItems() {
   if (!conv) return [];
   return conv.messages
     .filter((m) => m.type === 'image' && m.image)
-    .map((m) => ({ src: m.image, caption: m.text || '', name: (m.file && m.file.name) || (m.gif ? 'pingme.gif' : 'pingme-photo.jpg') }));
+    .map((m) => ({ src: m.image, caption: m.text || '', name: (m.file && m.file.name) || (m.gif ? 'chattr.gif' : 'chattr-photo.jpg') }));
 }
 
 function openLightbox(src) {
   if (!src) return;
   Viewer.items = viewerItems();
   let i = Viewer.items.findIndex((it) => it.src === src);
-  if (i < 0) { Viewer.items = [{ src, caption: '', name: 'pingme-photo.jpg' }]; i = 0; }
+  if (i < 0) { Viewer.items = [{ src, caption: '', name: 'chattr-photo.jpg' }]; i = 0; }
   Viewer.index = i;
   showViewerItem();
   $('#lightbox').classList.remove('hidden');
@@ -2450,7 +2450,7 @@ async function downloadViewerItem() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = it.name || 'pingme-photo';
+    a.download = it.name || 'chattr-photo';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -2614,7 +2614,7 @@ function simulateReply(convId) {
   }, delay);
 }
 
-/** PingBot: real AI when signed in (Bot.ask from src/live.js), canned replies in demo mode. */
+/** ChattrBot: real AI when signed in (Bot.ask from src/live.js), canned replies in demo mode. */
 async function replyFromBot(convId, msgId) {
   const conv = Store.get(convId);
   if (!conv) return;
@@ -3353,7 +3353,7 @@ async function flushIce(c) {
 async function startCall(kind) {
   const conv = Store.getOpen();
   if (!conv) return;
-  if (conv.bot) { toast('PingBot can’t take calls 🤖'); return; }
+  if (conv.bot) { toast('ChattrBot can’t take calls 🤖'); return; }
   if (!Calls.signal || !conv.otherId) { toast('Calls work when you’re logged in and chatting with a real person 📞'); return; }
   if (conv.blocked) { toast('You blocked this contact'); return; }
   if (Calls.cur) { toast('You are already in a call'); return; }
@@ -3799,7 +3799,7 @@ init();
    ============================================================ */
 window.PingMe = {
   Store, UI, Storage, Runtime, Bot, BOT_ID,
-  // original (on-device) Store methods, so src/live.js can keep PingBot local
+  // original (on-device) Store methods, so src/live.js can keep ChattrBot local
   local: {
     send: Store.send, open: Store.open, react: Store.react, setStatus: Store.setStatus,
     markMineSeen: Store.markMineSeen, toggleMute: Store.toggleMute, toggleBlock: Store.toggleBlock,

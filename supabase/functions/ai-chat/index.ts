@@ -1,4 +1,4 @@
-// Supabase Edge Function: ai-chat  ("PingBot")
+// Supabase Edge Function: ai-chat  ("ChattrBot")
 // Calls Google Gemini on the FREE tier with a server-side key — never exposed to the browser.
 //
 // Get a free key (no card): https://aistudio.google.com → "Get API key"
@@ -18,7 +18,7 @@ const CORS = {
 };
 
 const SYSTEM_PROMPT =
-  "You are PingBot, the friendly AI buddy inside the PingMe chat app. " +
+  "You are ChattrBot, the friendly AI buddy inside the Chattr chat app. " +
   "Keep replies short (1-3 sentences), playful and helpful, with an occasional emoji. " +
   "You help people write messages, come up with replies, plan meetups, tell jokes and keep the chat fun. " +
   "Reply in the same language the user writes in. " +
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
-    // Only signed-in PingMe users may use the bot (protects your free quota).
+    // Only signed-in Chattr users may use the bot (protects your free quota).
     const authHeader = req.headers.get("Authorization") ?? "";
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",

@@ -1,5 +1,5 @@
 /* ============================================================
-   PingMe — live backend layer
+   Chattr — live backend layer
    ------------------------------------------------------------
    Turns the single-file demo into a real app:
      • Supabase Auth (email/password, Google, password reset)
@@ -11,7 +11,7 @@
      • media uploads to the private `media` bucket
      • GIFs (GIPHY via Edge Function), stickers, memes
      • edit (15 min), delete for me, unsend for everyone, forward
-     • PingBot AI chat (Edge Function → Google Gemini free tier)
+     • ChattrBot AI chat (Edge Function → Google Gemini free tier)
 
    The demo engine in index.html stays untouched: when a session
    exists we override the Store methods in place, so all rendering
@@ -25,7 +25,7 @@ const SUPABASE_URL = env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = env.VITE_SUPABASE_ANON_KEY;
 
 const F = window.PingMe;
-if (!F) throw new Error('PingMe hooks missing — check index.html');
+if (!F) throw new Error('Chattr hooks missing — check index.html');
 
 const { Store, UI, Runtime, Bot, BOT_ID, $, toast, esc, initials, renderAll } = F;
 const isBot = (convId) => convId === BOT_ID;
@@ -137,7 +137,7 @@ async function boot() {
   const reveal = () => { if (app) app.style.visibility = ''; };
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    console.warn('PingMe: no Supabase env vars — running in demo mode only.');
+    console.warn('Chattr: no Supabase env vars — running in demo mode only.');
     reveal();
     return;
   }
@@ -418,7 +418,7 @@ async function enterLive(user) {
     Live.booted = true;
     renderAll();
   } catch (err) {
-    console.error('PingMe live boot failed', err);
+    console.error('Chattr live boot failed', err);
     toast('Could not load your chats — please retry.');
     showAuth('login');
   } finally {
@@ -576,7 +576,7 @@ async function signMedia(paths) {
   if (!todo.length) return;
   const { data, error } = await Live.sb.storage.from('media').createSignedUrls(todo, SIGNED_TTL);
   if (error) {
-    console.warn('PingMe: could not sign media', error.message);
+    console.warn('Chattr: could not sign media', error.message);
     return;
   }
   (data || []).forEach((row) => {
@@ -658,7 +658,7 @@ function toUIMsg(row, byMsg, reactionRows) {
 function installLiveStore() {
   const local = F.local;
 
-  // PingBot is AI-only and lives on this device — no database
+  // ChattrBot is AI-only and lives on this device — no database
   Bot.ask = askBot;
   UI.gifProvider = searchGifs;
   if (UI.gifOpen && F.renderGifPanel) F.renderGifPanel();
@@ -1263,7 +1263,7 @@ function setupCalls() {
 }
 
 /* ------------------------------------------------------------
-   PingBot (AI) + GIF search — both go through Supabase Edge
+   ChattrBot (AI) + GIF search — both go through Supabase Edge
    Functions so API keys never reach the browser.
    ------------------------------------------------------------ */
 async function functionError(error) {
@@ -1283,8 +1283,8 @@ async function askBot(history) {
   const { data, error } = await Live.sb.functions.invoke('ai-chat', { body: { messages: history } });
   if (error) {
     const { status, detail } = await functionError(error);
-    console.warn('PingBot error', status, detail);
-    const err = new Error(detail || 'PingBot failed');
+    console.warn('ChattrBot error', status, detail);
+    const err = new Error(detail || 'ChattrBot failed');
     err.botMessage =
       status === 404 || /not found/i.test(detail)
         ? 'I’m not switched on yet 🔌 — the ai-chat function still needs to be deployed to Supabase.'
@@ -1524,5 +1524,5 @@ async function searchPeople(q) {
    Kickoff
    ------------------------------------------------------------ */
 boot().catch((err) => {
-  console.error('PingMe live boot error', err);
+  console.error('Chattr live boot error', err);
 });

@@ -1,4 +1,4 @@
-# PingMe
+# Chattr
 
 A playful, Instagram-DM-style messenger. The UI is still **one self-contained HTML file** (HTML + CSS + vanilla JS) — the live backend is layered on top by `src/live.js`, so the look and feel did not change:
 
@@ -9,7 +9,7 @@ A playful, Instagram-DM-style messenger. The UI is still **one self-contained HT
 - Live site: https://funtochat.vercel.app
 - GitHub: https://github.com/tarunkonga89-blip/funtochat
 
-> **Branding note:** the app is now called **PingMe**. The GitHub repo, the Vercel
+> **Branding note:** the app is now called **Chattr**. The GitHub repo, the Vercel
 > project and the `funtochat.vercel.app` URL keep their original names — rename them
 > in GitHub/Vercel if you want the domain to match. Test account emails still use
 > `@funtochat.test` because those rows already exist in Supabase.
@@ -38,7 +38,7 @@ A playful, Instagram-DM-style messenger. The UI is still **one self-contained HT
 | Stickers (big animated emoji) and Meme maker (templates or your own photo + top/bottom text) | ✅ no key needed |
 | Full-screen media viewer: swipe / ← → between photos, tap or wheel or pinch to zoom, download | ✅ |
 | Message menu (⋯): copy, forward, edit (15 min, shows "Edited"), delete for me, unsend for everyone | ✅ live in Realtime |
-| PingBot AI chat (pinned at the top) | ✅ Google Gemini **free tier** — needs `GEMINI_API_KEY` |
+| ChattrBot AI chat (pinned at the top) | ✅ Google Gemini **free tier** — needs `GEMINI_API_KEY` |
 | Voice notes: tap 🎤 to record (max 2 min), tap again to send; tap ▶ to play | ✅ uploaded to Storage |
 | Video sharing (📎 → pick a video, 50 MB max), plays full screen | ✅ |
 | 1:1 voice & video calls (WebRTC, signaling over Realtime broadcast): accept/decline, mute, camera off, hang up | ✅ logged-in users only |
@@ -115,15 +115,15 @@ supabase secrets set GIPHY_API_KEY=...       # free: https://developers.giphy.co
 No credit card is needed for either key. You can also add the secrets in the Supabase dashboard
 (Edge Functions → Secrets) and deploy the functions from there.
 
-- `ai-chat` → `POST { messages: [{ role, content }] }` → `{ reply }` (Google Gemini free tier, 1–3 sentence "PingBot").
+- `ai-chat` → `POST { messages: [{ role, content }] }` → `{ reply }` (Google Gemini free tier, 1–3 sentence "ChattrBot").
   It tries `GEMINI_MODEL`, then `gemini-2.5-flash`, `gemini-flash-latest`, `gemini-2.5-flash-lite`, so a retired model does not break the bot.
   Only signed-in users can call it, which protects your free quota.
 - `giphy` → `GET ?q=cats&trending=1&sticker=1` → `{ items: [{ id, title, url, preview }] }`
 
 Keys never touch the frontend: there is no `VITE_GEMINI_KEY` or `VITE_GIPHY_KEY` anywhere.
 
-PingBot's chat history is stored on the device (localStorage, per account), not in Postgres.
-In demo mode PingBot answers with canned replies; GIF search shows a hint, while stickers and memes always work.
+ChattrBot's chat history is stored on the device (localStorage, per account), not in Postgres.
+In demo mode ChattrBot answers with canned replies; GIF search shows a hint, while stickers and memes always work.
 
 ## Code map
 
