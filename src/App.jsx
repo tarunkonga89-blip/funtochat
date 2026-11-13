@@ -6,7 +6,7 @@ function App() {
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [username, setUsername] = useState(
-    () => localStorage.getItem('funtochat_username') || 'Guest'
+    () => localStorage.getItem('pingme_username') || 'Guest'
   )
   const [status, setStatus] = useState(
     supabase ? 'Connecting to Supabase…' : 'Demo mode (Supabase not connected)'
@@ -14,7 +14,7 @@ function App() {
   const bottomRef = useRef(null)
 
   useEffect(() => {
-    localStorage.setItem('funtochat_username', username)
+    localStorage.setItem('pingme_username', username)
   }, [username])
 
   useEffect(() => {
@@ -88,7 +88,7 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>FuntoChat</h1>
+        <h1>PingMe</h1>
         <p className="status">{status}</p>
       </header>
 

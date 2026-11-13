@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FunToChat</title>
-  <meta name="description" content="FunToChat — a playful Messenger-style chat UI demo. Front-end only." />
+  <title>PingMe</title>
+  <meta name="description" content="PingMe — a playful Messenger-style chat app with real accounts, realtime messages and photo sharing." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -210,12 +210,23 @@
 
     .sidebar-foot {
       display: flex; align-items: center; gap: 10px;
-      padding: 12px 18px;
+      padding: 8px 12px;
       border-top: 1px solid var(--border);
     }
     .sidebar-foot .me-name { font-size: 13px; font-weight: 600; line-height: 1.2; }
     .sidebar-foot .me-sub { font-size: 11px; color: var(--muted); }
     .sidebar-foot .dot { background: var(--online); }
+    .sidebar-me {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 6px 8px;
+      border-radius: 12px; text-align: left;
+      border: 1px solid transparent;
+    }
+    .sidebar-me:hover { background: var(--hover); }
+    .sidebar-me[aria-expanded="true"] { background: var(--hover); border-color: var(--border); }
+    .sidebar-me-meta { display: flex; flex-direction: column; min-width: 0; }
+    .sidebar-me-meta .me-name,
+    .sidebar-me-meta .me-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* ============================================================
        5. CONVERSATION PANEL
        ============================================================ */
@@ -728,6 +739,104 @@
       .sidebar-head h1 { font-size: 20px; }
       .emoji-picker { right: 12px; width: min(288px, calc(100vw - 24px)); }
     }
+
+    /* ============================================================
+       12. AUTH / ACCOUNT / PROFILE
+       ============================================================ */
+    .auth-screen {
+      position: fixed; inset: 0; z-index: 200;
+      display: grid; place-items: center;
+      padding: 20px;
+      overflow-y: auto;
+      background:
+        radial-gradient(900px 520px at 10% 0%, rgba(124, 58, 237, .30), transparent 60%),
+        radial-gradient(800px 500px at 100% 100%, rgba(236, 72, 153, .22), transparent 55%),
+        var(--bg);
+    }
+    .auth-screen[hidden] { display: none; }
+    .auth-card {
+      width: min(420px, 100%);
+      margin: auto;
+      padding: 26px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+    .auth-brand { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .auth-tagline { margin: 8px 0 18px; text-align: center; font-size: 13px; color: var(--muted); }
+    .auth-tabs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding: 4px; margin-bottom: 16px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .auth-tabs button { padding: 8px; border-radius: 9px; font-weight: 600; color: var(--muted); }
+    .auth-tabs button.active { background: var(--panel); color: var(--primary); box-shadow: 0 1px 4px rgba(0, 0, 0, .08); }
+    .auth-form { display: grid; gap: 10px; }
+    .auth-form label { display: grid; gap: 5px; font-size: 12px; font-weight: 600; color: var(--muted); }
+    .auth-form input, .auth-form select, .auth-form textarea {
+      width: 100%; padding: 11px 12px;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); font-weight: 400;
+    }
+    .auth-form input:focus, .auth-form select:focus, .auth-form textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124, 58, 237, .14);
+    }
+    .auth-primary { margin-top: 4px; padding: 11px; border-radius: 12px; background: var(--primary); color: #fff; font-weight: 700; }
+    .auth-primary:hover { background: var(--primary-dark); }
+    .auth-google {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 11px;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: var(--panel); font-weight: 600;
+    }
+    .auth-google:hover { background: var(--hover); }
+    .auth-google .g { font-weight: 800; color: #EA4335; }
+    .auth-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-size: 11px; color: var(--muted); }
+    .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .auth-links { display: flex; justify-content: center; margin-top: 10px; }
+    .auth-links button { color: var(--primary); font-weight: 600; font-size: 13px; }
+    .auth-demo {
+      width: 100%; margin-top: 16px; padding: 10px;
+      border: 1px dashed var(--border); border-radius: 12px;
+      color: var(--muted); font-weight: 600;
+    }
+    .auth-demo:hover { border-color: var(--primary); color: var(--primary); }
+    .auth-msg { min-height: 18px; margin: 10px 0 0; text-align: center; font-size: 12.5px; color: var(--danger); }
+    .auth-msg.ok { color: var(--online); }
+    .auth-note { margin-top: 10px; text-align: center; font-size: 11px; color: var(--muted); }
+
+    .account-menu {
+      position: fixed; left: 16px; bottom: 74px;
+      width: 232px; padding: 6px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      z-index: 120;
+    }
+    .account-menu button { display: flex; width: 100%; gap: 8px; padding: 9px 10px; border-radius: 10px; text-align: left; font-size: 13px; }
+    .account-menu button:hover { background: var(--hover); }
+    .account-menu .danger { color: var(--danger); }
+    .account-menu .who { padding: 8px 10px 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+    .account-menu .who b { display: block; font-size: 13px; }
+    .account-menu .who span { font-size: 11.5px; color: var(--muted); }
+
+    .people-list { margin-top: 12px; display: grid; gap: 2px; max-height: 46vh; overflow-y: auto; }
+    .person-row { display: flex; align-items: center; gap: 10px; padding: 9px; border-radius: 12px; }
+    .person-row:hover { background: var(--hover); }
+    .person-row .meta { flex: 1; min-width: 0; }
+    .person-row .meta b { display: block; font-size: 13.5px; }
+    .person-row .meta span { font-size: 11.5px; color: var(--muted); }
+    .person-row .actions { display: flex; gap: 6px; }
+    .mini-btn { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border); font-size: 11.5px; font-weight: 700; }
+    .mini-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .mini-btn.solid { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .mini-btn.solid:hover { background: var(--primary-dark); color: #fff; }
+
+    .profile-avatar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .profile-avatar-row .avatar { width: 64px; height: 64px; font-size: 20px; }
+    .profile-avatar-row button { font-size: 12px; color: var(--primary); font-weight: 700; }
   </style>
 </head>
 <body>
@@ -742,12 +851,17 @@
         <circle cx="21" cy="13.6" r="1.7" fill="#fff"/>
         <path d="M11.4 18.2c1.2 1.7 3 2.5 4.6 2.5s3.4-.8 4.6-2.5" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/>
       </svg>
-      <span class="brand-name"><span class="fun">Fun</span><span class="to">ToChat</span></span>
+      <span class="brand-name"><span class="fun">Ping</span><span class="to">Me</span></span>
     </div>
 
     <div class="sidebar-head">
       <h1>Chats</h1>
       <div class="tools">
+        <button class="icon-btn" id="peopleBtn" aria-label="Find people" title="Find people" type="button">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="8" r="3.4"/><path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/><path d="M18 8v6M15 11h6"/>
+          </svg>
+        </button>
         <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle dark mode"></button>
       </div>
     </div>
@@ -770,11 +884,13 @@
     <p class="list-empty hidden" id="listEmpty">No chats yet. Say hi to someone! 👋</p>
 
     <footer class="sidebar-foot">
-      <span class="avatar sm" style="background: linear-gradient(135deg, #7C3AED, #EC4899)">AS<span class="dot"></span></span>
-      <div>
-        <div class="me-name">Aarav Sharma</div>
-        <div class="me-sub">That&rsquo;s you &middot; demo mode</div>
-      </div>
+      <button class="sidebar-me" id="accountBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Your account">
+        <span class="avatar sm" id="meAvatar" style="background: linear-gradient(135deg, #7C3AED, #EC4899)">AS<span class="dot" id="meDot"></span></span>
+        <span class="sidebar-me-meta">
+          <span class="me-name" id="meName">Aarav Sharma</span>
+          <span class="me-sub" id="meSub">Demo mode</span>
+        </span>
+      </button>
     </footer>
   </aside>
 
@@ -783,7 +899,7 @@
     <div class="chat-empty" id="chatEmpty">
       <div>
         <div class="big" aria-hidden="true">💬</div>
-        <h2>Welcome to FunToChat!</h2>
+        <h2>Welcome to PingMe!</h2>
         <p>Pick a chat on the left and start the fun.<br />Messages are saved on this device (demo).</p>
       </div>
     </div>
@@ -918,6 +1034,151 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="heads-layer" id="headsLayer" aria-label="Floating chat windows"></div>
 
+<!-- ========================= AUTH SCREEN ========================= -->
+<div class="auth-screen" id="authScreen" hidden>
+  <div class="auth-card">
+    <div class="auth-brand">
+      <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M16 3C8.8 3 3 8.3 3 14.9c0 3.6 1.7 6.9 4.4 9.1v5.4c0 .7.8 1.1 1.4.7l4.6-3.3c.9.2 1.8.3 2.6.3 7.2 0 13-5.3 13-11.9S23.2 3 16 3z" fill="#7C3AED"/>
+        <circle cx="11" cy="13.6" r="1.7" fill="#fff"/>
+        <circle cx="21" cy="13.6" r="1.7" fill="#fff"/>
+        <path d="M11.4 18.2c1.2 1.7 3 2.5 4.6 2.5s3.4-.8 4.6-2.5" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name"><span class="fun">Ping</span><span class="to">Me</span></span>
+    </div>
+    <p class="auth-tagline">Chat, share, laugh. Sign in to keep your chats in sync.</p>
+
+    <div class="auth-tabs" role="tablist" aria-label="Sign in or sign up">
+      <button type="button" role="tab" id="tabLogin" class="active" aria-selected="true" aria-controls="loginForm">Log in</button>
+      <button type="button" role="tab" id="tabSignup" aria-selected="false" aria-controls="signupForm">Sign up</button>
+    </div>
+
+    <form class="auth-form" id="loginForm" novalidate>
+      <label>Email
+        <input type="email" id="loginEmail" autocomplete="email" placeholder="you@example.com" required />
+      </label>
+      <label>Password
+        <input type="password" id="loginPassword" autocomplete="current-password" placeholder="Your password" required />
+      </label>
+      <button class="auth-primary" type="submit" id="loginSubmit">Log in</button>
+    </form>
+
+    <form class="auth-form hidden" id="signupForm" novalidate>
+      <label>Username
+        <input type="text" id="signupUsername" autocomplete="username" placeholder="yourname" pattern="[a-zA-Z0-9_]{3,20}" required />
+      </label>
+      <label>Display name
+        <input type="text" id="signupName" autocomplete="name" placeholder="Your Name" required />
+      </label>
+      <label>Email
+        <input type="email" id="signupEmail" autocomplete="email" placeholder="you@example.com" required />
+      </label>
+      <label>Password
+        <input type="password" id="signupPassword" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required />
+      </label>
+      <button class="auth-primary" type="submit" id="signupSubmit">Create account</button>
+    </form>
+
+    <form class="auth-form hidden" id="resetForm" novalidate>
+      <label>Email
+        <input type="email" id="resetEmail" autocomplete="email" placeholder="you@example.com" required />
+      </label>
+      <label class="hidden" id="newPassLabel">New password
+        <input type="password" id="newPassword" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" />
+      </label>
+      <button class="auth-primary" type="submit" id="resetSubmit">Send reset link</button>
+    </form>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <button class="auth-google" type="button" id="googleBtn">
+      <span class="g" aria-hidden="true">G</span> Continue with Google
+    </button>
+
+    <div class="auth-links">
+      <button type="button" id="forgotBtn">Forgot password?</button>
+    </div>
+
+    <button class="auth-demo" type="button" id="demoBtn">Try demo mode</button>
+    <p class="auth-msg" id="authMsg" role="status" aria-live="polite"></p>
+    <p class="auth-note">Your chats are private. Passwords are handled by Supabase Auth.</p>
+  </div>
+</div>
+
+<!-- ========================= ACCOUNT MENU ========================= -->
+<div class="account-menu hidden" id="accountMenu" role="menu" aria-labelledby="accountBtn">
+  <div class="who">
+    <b id="menuName">Aarav Sharma</b>
+    <span id="menuHandle">@aarav</span>
+  </div>
+  <button type="button" role="menuitem" id="menuProfile">👤 Edit profile</button>
+  <button type="button" role="menuitem" id="menuPeople">🔎 Find people</button>
+  <button type="button" role="menuitem" id="menuSignIn" class="hidden">🔑 Sign in</button>
+  <button type="button" role="menuitem" id="menuSignOut" class="danger hidden">↩ Log out</button>
+</div>
+
+<!-- ========================= PROFILE MODAL ========================= -->
+<div class="modal-backdrop hidden" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+  <div class="modal">
+    <div class="modal-top">
+      <div>
+        <h2 id="profileTitle">Your profile</h2>
+        <p>This is how friends find and see you.</p>
+      </div>
+      <button class="icon-btn modal-close" id="closeProfile" aria-label="Close" type="button">✕</button>
+    </div>
+    <form class="auth-form" id="profileForm" novalidate>
+      <div class="profile-avatar-row">
+        <span class="avatar" id="profileAvatar" aria-hidden="true">AS</span>
+        <div>
+          <button type="button" id="avatarPickBtn">Change photo</button>
+          <div class="auth-note" style="text-align:left;margin:2px 0 0">PNG or JPG, up to 5 MB</div>
+        </div>
+        <input type="file" id="avatarInput" accept="image/*" class="hidden" />
+      </div>
+      <label>Username
+        <input type="text" id="profileUsername" pattern="[a-zA-Z0-9_]{3,20}" required />
+      </label>
+      <label>Display name
+        <input type="text" id="profileName" required />
+      </label>
+      <label>Bio
+        <textarea id="profileBio" rows="2" maxlength="160" placeholder="A little about you…"></textarea>
+      </label>
+      <label>Status
+        <select id="profileStatus">
+          <option value="online">Online</option>
+          <option value="busy">Busy</option>
+          <option value="away">Away</option>
+        </select>
+      </label>
+      <button class="auth-primary" type="submit" id="profileSave">Save changes</button>
+    </form>
+    <p class="auth-msg" id="profileMsg" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- ========================= FIND PEOPLE MODAL ========================= -->
+<div class="modal-backdrop hidden" id="peopleModal" role="dialog" aria-modal="true" aria-labelledby="peopleTitle">
+  <div class="modal">
+    <div class="modal-top">
+      <div>
+        <h2 id="peopleTitle">Find people</h2>
+        <p>Search by @username or name to start a chat.</p>
+      </div>
+      <button class="icon-btn modal-close" id="closePeople" aria-label="Close" type="button">✕</button>
+    </div>
+    <div class="search" style="margin:0">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+      </svg>
+      <input type="search" id="peopleSearch" placeholder="Search people" aria-label="Search people" autocomplete="off" />
+    </div>
+    <div class="people-list" id="peopleList"></div>
+    <p class="list-empty hidden" id="peopleEmpty">No matches yet — check the spelling of the username.</p>
+  </div>
+</div>
+
 <script>
 'use strict';
 
@@ -926,6 +1187,13 @@
    ============================================================ */
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+/** Runtime mode. src/live.js flips this when a real session takes over. */
+const Runtime = {
+  mode: 'demo',        // 'demo' | 'live'
+  demoReplies: true,   // fake "typing…" + auto-reply
+  hasBackend: false,   // true when Supabase env vars are present
+};
 
 const uid = () => 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
 
@@ -1025,13 +1293,13 @@ function buildConversations() {
       pinned: true, unread: 2, muted: false, blocked: false,
       about: 'Product designer · coffee first ☕',
       messages: [
-        { id: 'm1a', from: 'them', type: 'text', time: minutesAgo(190), text: 'Hey Aarav! Did you try the new FunToChat update? 😍', reactions: {} },
+        { id: 'm1a', from: 'them', type: 'text', time: minutesAgo(190), text: 'Hey Aarav! Did you try the new PingMe app? 😍', reactions: {} },
         { id: 'm1b', from: 'me', type: 'text', time: minutesAgo(186), text: 'Just did — the reactions are so smooth!', reactions: { '❤️': 1 }, status: 'seen' },
         { id: 'm1c', from: 'them', type: 'text', time: minutesAgo(180), text: 'Right?? Drop a ❤️ on this one 😄', reactions: { '😄': 1 },
           replyTo: { name: 'Aarav Sharma', from: 'me', text: 'Just did — the reactions are so smooth!' } },
         { id: 'm1d', from: 'them', type: 'image', time: minutesAgo(120), image: artImage('#F59E0B', '#EC4899', '🌅', 'Goa sunset'), text: 'Look at this from Goa last weekend 😍', reactions: { '😍': 2 } },
         { id: 'm1e', from: 'me', type: 'text', time: minutesAgo(115), text: 'That is gorgeous! Take me next time 🌴', reactions: {}, status: 'seen' },
-        { id: 'm1f', from: 'them', type: 'text', time: minutesAgo(32), text: 'Btw here is the itinerary: https://funtochat.example.com/goa-trip 🗺️', reactions: {} },
+        { id: 'm1f', from: 'them', type: 'text', time: minutesAgo(32), text: 'Btw here is the itinerary: https://pingme.example.com/goa-trip 🗺️', reactions: {} },
         { id: 'm1g', from: 'them', type: 'text', time: minutesAgo(30), text: 'Tell me if Saturday works for you!', reactions: {} },
       ],
     },
@@ -1110,21 +1378,23 @@ function buildConversations() {
    and replace Storage + the state mutations with async calls.
    ============================================================ */
 const Storage = {
-  KEY: 'funtochat.demo.v1',
+  KEY: 'pingme.demo.v1',
   load() {
     try {
       const raw = localStorage.getItem(this.KEY);
       return raw ? JSON.parse(raw) : null;
     } catch (err) {
-      console.warn('FunToChat: could not read localStorage', err);
+      console.warn('PingMe: could not read localStorage', err);
       return null;
     }
   },
   save(state) {
+    // Live sessions are stored in Postgres — never mirror them into demo storage.
+    if (Runtime.mode === 'live') return;
     try {
       localStorage.setItem(this.KEY, JSON.stringify(state));
     } catch (err) {
-      console.warn('FunToChat: could not save to localStorage', err);
+      console.warn('PingMe: could not save to localStorage', err);
     }
   },
 };
@@ -1311,8 +1581,11 @@ function later(fn, ms) {
 function avatarBg(color) { return 'background: linear-gradient(135deg, ' + color + ', ' + color + 'cc)'; }
 
 function avatarHTML(conv, cls = '') {
-  return '<span class="avatar ' + cls + '" style="' + avatarBg(conv.color) + '" aria-hidden="true">' +
-    esc(initials(conv.name)) +
+  const style = conv.avatarUrl
+    ? 'background-image:url(' + conv.avatarUrl + ');background-size:cover;background-position:center'
+    : avatarBg(conv.color);
+  return '<span class="avatar ' + cls + '" style="' + style + '" aria-hidden="true">' +
+    (conv.avatarUrl ? '' : esc(initials(conv.name))) +
     '<span class="dot" style="' + (conv.online ? '' : 'background:#9CA3AF') + '"></span>' +
   '</span>';
 }
@@ -1544,8 +1817,8 @@ function renderConversation() {
   empty.classList.add('hidden');
   pane.classList.remove('hidden');
 
-  $('#convAvatar').textContent = initials(conv.name);
-  $('#convAvatar').style.cssText = 'width:40px;height:40px;font-size:14px;' + avatarBg(conv.color);
+  $('#convAvatar').textContent = conv.avatarUrl ? '' : initials(conv.name);
+  $('#convAvatar').style.cssText = 'width:40px;height:40px;font-size:14px;' + (conv.avatarUrl ? 'background-image:url(' + conv.avatarUrl + ');background-size:cover;background-position:center' : avatarBg(conv.color));
   $('#convName').textContent = conv.name;
   const st = $('#convStatus');
   st.textContent = conv.online ? 'Active now' : (conv.lastSeen || 'Offline');
@@ -1582,7 +1855,7 @@ function renderInfo(conv) {
   const st = $('#infoStatus');
   st.textContent = conv.online ? 'Active now' : (conv.lastSeen || 'Offline');
   st.classList.toggle('offline', !conv.online);
-  $('#infoAbout').textContent = conv.about || 'Hey there! I am using FunToChat.';
+  $('#infoAbout').textContent = conv.about || 'Hey there! I am using PingMe.';
 
   const mute = $('#muteBtn');
   mute.classList.toggle('on', !!conv.muted);
@@ -1787,14 +2060,17 @@ function sendTo(convId, payload) {
   UI.stickBottom = true;
   scrollBottom(true);
 
-  // Demo read receipts: Sending → Sent → Delivered (→ Seen when they reply)
-  later(() => Store.setStatus(convId, msg.id, 'sent'), 420);
-  later(() => Store.setStatus(convId, msg.id, 'delivered'), 950);
+  if (Runtime.demoReplies) {
+    // Demo read receipts: Sending → Sent → Delivered (→ Seen when they reply)
+    later(() => Store.setStatus(convId, msg.id, 'sent'), 420);
+    later(() => Store.setStatus(convId, msg.id, 'delivered'), 950);
 
-  simulateReply(convId);
+    simulateReply(convId);
+  }
 }
 
 function simulateReply(convId) {
+  if (!Runtime.demoReplies) return;
   const conv = Store.get(convId);
   if (!conv || conv.blocked || UI.typing[convId]) return;
 
@@ -1839,7 +2115,7 @@ function sendCurrent() {
   const att = currentAttachmentPayload(text);
   if (att) Object.assign(payload, att);
   if (UI.replyTo && UI.replyTo.convId === conv.id) {
-    payload.replyTo = { name: UI.replyTo.name, text: UI.replyTo.text, from: UI.replyTo.from };
+    payload.replyTo = { id: UI.replyTo.msgId, name: UI.replyTo.name, text: UI.replyTo.text, from: UI.replyTo.from };
   }
 
   sendTo(conv.id, payload);
@@ -1889,9 +2165,9 @@ async function handleFile(file) {
   if (file.type.startsWith('image/')) {
     const dataUrl = await downscaleImage(file);
     if (!dataUrl) { toast('Could not read that image 😕'); return; }
-    UI.attachment = { kind: 'image', name: file.name, size: file.size, dataUrl };
+    UI.attachment = { kind: 'image', name: file.name, size: file.size, dataUrl, raw: file };
   } else {
-    UI.attachment = { kind: 'file', name: file.name, size: file.size };
+    UI.attachment = { kind: 'file', name: file.name, size: file.size, raw: file };
   }
   renderAttachment();
   updateSendBtn();
@@ -2183,6 +2459,18 @@ function init() {
 }
 
 init();
+
+/* ============================================================
+   18. PUBLIC HOOKS for src/live.js (Supabase auth + realtime)
+   ============================================================ */
+window.PingMe = {
+  Store, UI, Storage, Runtime,
+  $, $$, later, esc, initials, avatarBg,
+  renderAll, renderConversation, renderChatList, renderHeads,
+  openConversationUI, openHead, closeModal, closeLightbox, openLightbox,
+  toast, autoGrow, updateSendBtn, sendCurrent,
+};
 </script>
+<script type="module" src="/src/live.js"></script>
 </body>
 </html>
