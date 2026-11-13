@@ -9,6 +9,9 @@
      • typing indicators and presence
      • read receipts (seen) from conversation_members.last_read_at
      • media uploads to the private `media` bucket
+     • GIFs (GIPHY via Edge Function), stickers, memes
+     • edit (15 min), delete for me, unsend for everyone, forward
+     • PingBot AI chat (Edge Function → Google Gemini free tier)
 
    The demo engine in index.html stays untouched: when a session
    exists we override the Store methods in place, so all rendering
@@ -24,7 +27,8 @@ const SUPABASE_ANON_KEY = env.VITE_SUPABASE_ANON_KEY;
 const F = window.PingMe;
 if (!F) throw new Error('PingMe hooks missing — check index.html');
 
-const { Store, UI, Runtime, $, toast, esc, initials, renderAll } = F;
+const { Store, UI, Runtime, Bot, BOT_ID, $, toast, esc, initials, renderAll } = F;
+const isBot = (convId) => convId === BOT_ID;
 
 const PALETTE = ['#7C3AED', '#EC4899', '#F59E0B', '#10B981', '#0EA5E9', '#6366F1', '#F43F5E', '#14B8A6'];
 const MAX_UPLOAD = 50 * 1024 * 1024;   // 50 MB
@@ -444,7 +448,8 @@ async function loadWorkspace() {
 
   if (!convIds.length) {
     Store.state.conversations = [];
-    Store.state.openId = null;
+    Bot.attach('pingme.bot.' + me);
+    if (Store.state.openId !== BOT_ID) Store.state.openId = null;
     renderAll();
     return;
   }
@@ -467,14 +472,19 @@ async function loadWorkspace() {
     Live.members.get(m.conversation_id).push({ ...m, profile: byId.get(m.user_id) || null });
   });
 
-  const { data: rows } = await Live.sb
-    .from('messages')
-    .select('*')
-    .in('conversation_id', convIds)
-    .order('created_at', { ascending: true })
-    .limit(600);
+  // newest 600 messages (then oldest → newest for display), minus "deleted for me"
+  const [{ data: rows }, { data: hidden }] = await Promise.all([
+    Live.sb
+      .from('messages')
+      .select('*')
+      .in('conversation_id', convIds)
+      .order('created_at', { ascending: false })
+      .limit(600),
+    Live.sb.from('message_deletions').select('message_id').eq('user_id', me),
+  ]);
 
-  const messages = rows || [];
+  const hiddenIds = new Set((hidden || []).map((r) => r.message_id));
+  const messages = (rows || []).filter((m) => !hiddenIds.has(m.id)).reverse();
   const byMsg = new Map(messages.map((m) => [m.id, m]));
 
   const { data: reactionRows } = messages.length
@@ -533,6 +543,7 @@ async function loadWorkspace() {
     };
   });
 
+  Bot.attach('pingme.bot.' + me);
   if (Store.state.openId && !Store.get(Store.state.openId)) Store.state.openId = null;
   renderAll();
 }
@@ -575,11 +586,20 @@ function toUIMsg(row, byMsg, reactionRows) {
     status: mine ? 'sent' : undefined,
     _deleted: !!row.deleted_for_all,
     _path: isPath(row.media_url) ? row.media_url : '',
+    edited: !!row.edited_at,
+    forwarded: !!meta.forwarded,
   };
 
-  if (type === 'photo' || type === 'gif' || type === 'meme' || type === 'sticker') {
+  if (type === 'sticker' && !row.media_url) {
+    msg.type = 'sticker';
+    msg.sticker = row.content || '🙂';
+    msg.text = '';
+  } else if (type === 'photo' || type === 'gif' || type === 'meme' || type === 'sticker') {
     msg.type = 'image';
     msg.image = mediaUrl(row.media_url);
+    msg.gif = type === 'gif';
+    msg.meme = type === 'meme';
+    if (msg.gif) msg.gifMeta = { width: meta.width || 0, height: meta.height || 0, title: meta.title || '' };
   } else if (type === 'file' || type === 'video' || type === 'voice') {
     msg.type = 'file';
     msg.file = { name: meta.name || (type === 'video' ? 'Video' : type === 'voice' ? 'Voice note' : 'File'), size: meta.size || 0 };
@@ -608,7 +628,15 @@ function toUIMsg(row, byMsg, reactionRows) {
    Live Store overrides
    ------------------------------------------------------------ */
 function installLiveStore() {
+  const local = F.local;
+
+  // PingBot is AI-only and lives on this device — no database
+  Bot.ask = askBot;
+  UI.gifProvider = searchGifs;
+  if (UI.gifOpen && F.renderGifPanel) F.renderGifPanel();
+
   Store.open = function (id) {
+    if (isBot(id)) return local.open.call(this, id);
     const conv = this.get(id);
     if (!conv) return;
     this.state.openId = id;
@@ -618,6 +646,7 @@ function installLiveStore() {
   };
 
   Store.send = function (convId, payload) {
+    if (isBot(convId)) return local.send.call(this, convId, payload);
     const conv = this.get(convId);
     if (!conv) return null;
 
@@ -650,10 +679,12 @@ function installLiveStore() {
   };
 
   Store.markMineSeen = function (convId) {
+    if (isBot(convId)) return local.markMineSeen.call(this, convId);
     markRead(convId);
   };
 
   Store.react = function (convId, msgId, emoji) {
+    if (isBot(convId)) return local.react.call(this, convId, msgId, emoji);
     const conv = this.get(convId);
     if (!conv) return;
     const msg = conv.messages.find((m) => m.id === msgId);
@@ -683,6 +714,7 @@ function installLiveStore() {
   };
 
   Store.toggleMute = function (convId) {
+    if (isBot(convId)) return local.toggleMute.call(this, convId);
     const conv = this.get(convId);
     if (!conv) return;
     conv.muted = !conv.muted;
@@ -695,6 +727,7 @@ function installLiveStore() {
   };
 
   Store.toggleBlock = function (convId) {
+    if (isBot(convId)) return;
     const conv = this.get(convId);
     if (!conv || !conv.otherId) return;
     conv.blocked = !conv.blocked;
@@ -712,6 +745,77 @@ function installLiveStore() {
     });
   };
 
+  Store.editMessage = function (convId, msgId, text) {
+    if (isBot(convId)) return local.editMessage.call(this, convId, msgId, text);
+    const msg = this.findMsg(convId, msgId);
+    if (!msg || msg.from !== 'me') return false;
+    const before = { text: msg.text, edited: msg.edited };
+    msg.text = text;
+    msg.edited = true;
+    this.emit();
+
+    Live.sb.from('messages')
+      .update({ content: text, edited_at: new Date().toISOString() })
+      .eq('id', msgId)
+      .eq('sender_id', Live.user.id)
+      .select('id')
+      .then(({ data, error }) => {
+        if (!error && data && data.length) return;
+        msg.text = before.text;
+        msg.edited = before.edited;
+        Store.emit();
+        toast('Could not edit that message');
+      });
+    return true;
+  };
+
+  Store.deleteForMe = function (convId, msgId) {
+    if (isBot(convId)) return local.deleteForMe.call(this, convId, msgId);
+    const conv = this.get(convId);
+    if (!conv) return;
+    const idx = conv.messages.findIndex((m) => m.id === msgId);
+    if (idx < 0) return;
+    const [removed] = conv.messages.splice(idx, 1);
+    this.emit();
+    if (removed.status === 'failed' || removed.status === 'sending') return; // never reached the server
+
+    Live.sb.from('message_deletions')
+      .insert({ message_id: msgId, user_id: Live.user.id })
+      .then(({ error }) => {
+        if (!error || /duplicate/i.test(error.message)) return;
+        conv.messages.splice(Math.min(idx, conv.messages.length), 0, removed);
+        Store.emit();
+        toast('Could not delete that message');
+      });
+  };
+
+  Store.deleteForAll = function (convId, msgId) {
+    if (isBot(convId)) return local.deleteForAll.call(this, convId, msgId);
+    const conv = this.get(convId);
+    if (!conv) return;
+    const idx = conv.messages.findIndex((m) => m.id === msgId);
+    if (idx < 0 || conv.messages[idx].from !== 'me') return;
+    const [removed] = conv.messages.splice(idx, 1);
+    this.emit();
+    if (removed.status === 'failed') return;
+
+    Live.sb.from('messages')
+      .delete()
+      .eq('id', msgId)
+      .eq('sender_id', Live.user.id)
+      .select('id')
+      .then(({ data, error }) => {
+        if (!error && data && data.length) {
+          Live.msgConv.delete(msgId);
+          if (removed._path) Live.sb.storage.from('media').remove([removed._path]).then(() => {});
+          return;
+        }
+        conv.messages.splice(Math.min(idx, conv.messages.length), 0, removed);
+        Store.emit();
+        toast('Could not unsend that message');
+      });
+  };
+
   // In live mode "New message" opens Find people instead of the demo contacts.
   const btn = $('#newChatBtn');
   if (btn) {
@@ -726,33 +830,48 @@ async function persistMessage(convId, msg) {
     let media_path = null;
     let meta = {};
     let dbType = 'text';
+    let content = msg.text || null;
+    const raw = msg._raw || null;
 
-    if (msg.type === 'image' && msg.image) {
-      dbType = 'photo';
-      const att = UI.attachment;
-      const blob = att && att.raw ? att.raw : await (await fetch(msg.image)).blob();
-      const name = att && att.name ? att.name : 'photo.jpg';
+    if (msg.type === 'sticker') {
+      dbType = 'sticker';
+      content = msg.sticker || '🙂';
+    } else if (msg.type === 'image' && msg.gif) {
+      // GIPHY GIFs are already hosted — store the URL, upload nothing
+      dbType = 'gif';
+      media_path = msg.image;
+      meta = { provider: 'giphy', ...(msg.gifMeta || {}) };
+    } else if (msg.type === 'image' && msg.image) {
+      dbType = msg.meme ? 'meme' : 'photo';
+      const blob = raw || await (await fetch(msg.image)).blob();
+      const name = msg.meme ? 'meme.jpg' : (msg.file && msg.file.name) || 'photo.jpg';
       media_path = await uploadMedia(convId, blob, name);
       meta = { name, size: blob.size, mime: blob.type };
       msg.image = Live.media.get(media_path) || msg.image;
     } else if (msg.type === 'file' && msg.file) {
       dbType = 'file';
-      const att = UI.attachment;
-      if (att && att.raw) {
-        if (att.raw.size > MAX_UPLOAD) throw new Error('That file is over 50 MB.');
-        media_path = await uploadMedia(convId, att.raw, att.name);
-        meta = { name: att.name, size: att.raw.size, mime: att.raw.type };
+      let blob = raw;
+      // forwarding a file: copy it from its current (signed) URL
+      if (!blob && msg.mediaUrl) blob = await (await fetch(msg.mediaUrl)).blob();
+      if (blob) {
+        if (blob.size > MAX_UPLOAD) throw new Error('That file is over 50 MB.');
+        media_path = await uploadMedia(convId, blob, msg.file.name);
+        meta = { name: msg.file.name, size: blob.size, mime: blob.type };
+        msg.mediaUrl = Live.media.get(media_path) || '';
       } else {
         meta = { name: msg.file.name, size: msg.file.size };
       }
     }
+
+    if (msg.forwarded) meta.forwarded = true;
+    delete msg._raw;
 
     const { data, error } = await Live.sb.from('messages').insert({
       id: msg.id,
       conversation_id: convId,
       sender_id: Live.user.id,
       type: dbType,
-      content: msg.text || null,
+      content,
       media_url: media_path,
       media_meta: meta,
       reply_to: msg.replyTo && msg.replyTo.id ? msg.replyTo.id : null,
@@ -763,7 +882,7 @@ async function persistMessage(convId, msg) {
     msg.status = 'sent';
     msg.id = data.id;
     Live.msgConv.set(data.id, convId);
-    if (media_path) msg._path = media_path;
+    if (isPath(media_path)) msg._path = media_path;
 
     // a workspace reload may have replaced the conversation while we uploaded
     const current = Store.get(convId);
@@ -805,7 +924,7 @@ async function uploadMedia(convId, blob, name) {
    Read receipts
    ------------------------------------------------------------ */
 async function markRead(convId) {
-  if (!Live.user) return;
+  if (!Live.user || isBot(convId)) return;
   const now = new Date().toISOString();
   const members = Live.members.get(convId) || [];
   const me = members.find((m) => m.user_id === Live.user.id);
@@ -847,6 +966,11 @@ function subscribeDb() {
 
   ch.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
     onUpdated(payload.new);
+  });
+
+  // "Unsend for everyone": with RLS on, Realtime sends only the primary key of a deleted row
+  ch.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
+    onDeleted(payload.old && payload.old.id);
   });
 
   ch.on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, () => {
@@ -935,8 +1059,24 @@ function onUpdated(row) {
     msg.file = null;
     msg.text = 'This message was deleted';
   }
-  if (row.content !== null && row.content !== undefined) msg.text = row.content;
+  if (msg.type === 'sticker') {
+    if (row.content) msg.sticker = row.content;
+  } else if (row.content !== null && row.content !== undefined) {
+    msg.text = row.content;
+  }
+  if (row.edited_at) msg.edited = true;
   Store.emit();
+}
+
+function onDeleted(id) {
+  if (!id) return;
+  const convId = Live.msgConv.get(id);
+  const conv = convId ? Store.get(convId) : null;
+  Live.msgConv.delete(id);
+  if (!conv) return;
+  const before = conv.messages.length;
+  conv.messages = conv.messages.filter((m) => m.id !== id);
+  if (conv.messages.length !== before) Store.emit();
 }
 
 function refreshReactions() {
@@ -981,13 +1121,13 @@ function joinPresence() {
     const state = ch.presenceState();
     Live.online = new Set(Object.keys(state));
     Store.state.conversations.forEach((conv) => {
-      conv.online = Live.online.has(conv.otherId);
+      if (!conv.bot) conv.online = Live.online.has(conv.otherId);
     });
     Store.emit();
   });
 
   ch.on('broadcast', { event: 'typing' }, ({ payload }) => {
-    if (!payload || payload.userId === Live.user.id) return;
+    if (!payload || payload.userId === Live.user.id || isBot(payload.convId)) return;
     const conv = Store.get(payload.convId);
     if (!conv) return;
     UI.typing[conv.id] = true;
@@ -1012,7 +1152,7 @@ function wireTyping() {
   if (input) {
     input.addEventListener('input', () => {
       const convId = Store.state.openId;
-      if (!convId || !Live.presence) return;
+      if (!convId || isBot(convId) || !Live.presence) return;
       const now = Date.now();
       if (now - Live.lastTypingSent < 2200) return;
       Live.lastTypingSent = now;
@@ -1035,6 +1175,57 @@ function wireTyping() {
     if (!Live.user) return;
     Live.sb.auth.getSession();
   });
+}
+
+/* ------------------------------------------------------------
+   PingBot (AI) + GIF search — both go through Supabase Edge
+   Functions so API keys never reach the browser.
+   ------------------------------------------------------------ */
+async function functionError(error) {
+  let detail = '';
+  try {
+    const res = error && error.context;
+    if (res && typeof res.json === 'function') {
+      const body = await res.json();
+      detail = (body && (body.error || body.message)) || '';
+    }
+  } catch { /* not JSON */ }
+  const status = error && error.context && error.context.status;
+  return { status, detail: String(detail || (error && error.message) || '') };
+}
+
+async function askBot(history) {
+  const { data, error } = await Live.sb.functions.invoke('ai-chat', { body: { messages: history } });
+  if (error) {
+    const { status, detail } = await functionError(error);
+    console.warn('PingBot error', status, detail);
+    const err = new Error(detail || 'PingBot failed');
+    err.botMessage =
+      status === 404 || /not found/i.test(detail)
+        ? 'I’m not switched on yet 🔌 — the ai-chat function still needs to be deployed to Supabase.'
+        : /GEMINI_API_KEY|not configured/i.test(detail)
+          ? 'I’m not switched on yet 🔌 — add the free Gemini API key to Supabase (see README).'
+          : status === 429 || /quota|rate/i.test(detail)
+            ? 'Too many questions at once 😅 The free AI tier needs a short breather — try again in a minute.'
+            : 'Oops, my AI brain is offline right now 😵 Try again in a minute.';
+    throw err;
+  }
+  return (data && data.reply) || '';
+}
+
+async function searchGifs(q) {
+  const qs = new URLSearchParams(q ? { q } : { trending: '1' });
+  const { data, error } = await Live.sb.functions.invoke('giphy?' + qs.toString(), { method: 'GET' });
+  if (error) {
+    const { status, detail } = await functionError(error);
+    console.warn('GIF search error', status, detail);
+    const err = new Error(detail || 'GIF search failed');
+    err.gifMessage = status === 404 || /GIPHY_API_KEY|not configured|not found/i.test(detail)
+      ? '🎞️ GIF search isn’t set up yet — it needs a free GIPHY key (see README). Stickers and the Meme maker work right now! 😄'
+      : 'Could not load GIFs right now 😕 Try Stickers or the Meme maker.';
+    throw err;
+  }
+  return (data && data.items) || [];
 }
 
 /* ------------------------------------------------------------

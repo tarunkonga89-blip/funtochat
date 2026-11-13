@@ -34,7 +34,12 @@ A playful, Instagram-DM-style messenger. The UI is still **one self-contained HT
 | Blocks (blocked users cannot message) | ✅ enforced by RLS |
 | Google sign-in | ⚠️ code ready, provider must be enabled in Supabase |
 | Forgot-password email | ⚠️ code ready, needs SMTP configured |
-| Voice notes, video, GIF/meme/sticker picker, view-once, media viewer, edit/delete/forward, pin/mute/archive UI, WebRTC calls, Claude chatbot UI | ⏳ next steps |
+| GIF picker (GIPHY search + trending) | ✅ needs the free `GIPHY_API_KEY` secret |
+| Stickers (big animated emoji) and Meme maker (templates or your own photo + top/bottom text) | ✅ no key needed |
+| Full-screen media viewer: swipe / ← → between photos, tap or wheel or pinch to zoom, download | ✅ |
+| Message menu (⋯): copy, forward, edit (15 min, shows "Edited"), delete for me, unsend for everyone | ✅ live in Realtime |
+| PingBot AI chat (pinned at the top) | ✅ Google Gemini **free tier** — needs `GEMINI_API_KEY` |
+| Voice notes, video, view-once, pin/mute/archive UI, WebRTC calls | ⏳ next steps |
 
 ## Run it
 
@@ -95,15 +100,23 @@ Both functions verify the caller's Supabase JWT before doing anything.
 supabase functions deploy ai-chat
 supabase functions deploy giphy
 
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-supabase secrets set ANTHROPIC_MODEL=claude-sonnet-4-5
-supabase secrets set GIPHY_API_KEY=...
+supabase secrets set GEMINI_API_KEY=...      # free: https://aistudio.google.com → Get API key
+supabase secrets set GIPHY_API_KEY=...       # free: https://developers.giphy.com → Create an App
+# optional: supabase secrets set GEMINI_MODEL=gemini-2.5-flash
 ```
 
-- `ai-chat` → `POST { messages: [{ role, content }] }` → `{ reply }` (Claude, 1–3 sentence "PingBot")
+No credit card is needed for either key. You can also add the secrets in the Supabase dashboard
+(Edge Functions → Secrets) and deploy the functions from there.
+
+- `ai-chat` → `POST { messages: [{ role, content }] }` → `{ reply }` (Google Gemini free tier, 1–3 sentence "PingBot").
+  It tries `GEMINI_MODEL`, then `gemini-2.5-flash`, `gemini-flash-latest`, `gemini-2.5-flash-lite`, so a retired model does not break the bot.
+  Only signed-in users can call it, which protects your free quota.
 - `giphy` → `GET ?q=cats&trending=1&sticker=1` → `{ items: [{ id, title, url, preview }] }`
 
-Keys never touch the frontend: there is no `VITE_ANTHROPIC_KEY` anywhere.
+Keys never touch the frontend: there is no `VITE_GEMINI_KEY` or `VITE_GIPHY_KEY` anywhere.
+
+PingBot's chat history is stored on the device (localStorage, per account), not in Postgres.
+In demo mode PingBot answers with canned replies; GIF search shows a hint, while stickers and memes always work.
 
 ## Code map
 

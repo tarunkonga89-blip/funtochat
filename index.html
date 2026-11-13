@@ -837,6 +837,126 @@
     .profile-avatar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .profile-avatar-row .avatar { width: 64px; height: 64px; font-size: 20px; }
     .profile-avatar-row button { font-size: 12px; color: var(--primary); font-weight: 700; }
+    /* ============================================================
+       12. GIFs, STICKERS, MEMES, MESSAGE ACTIONS, MEDIA VIEWER, BOT
+       ============================================================ */
+    .gif-btn { font-size: 11.5px; font-weight: 800; letter-spacing: .4px; }
+    .gif-btn span { padding: 3px 6px; border: 2px solid currentColor; border-radius: 7px; line-height: 1; }
+    .gif-btn[aria-expanded="true"] { color: var(--primary); background: var(--hover); }
+
+    .gif-panel {
+      position: absolute; right: 16px; bottom: 74px;
+      width: min(360px, calc(100vw - 32px)); height: 420px;
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 10px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 16px; box-shadow: var(--shadow); z-index: 13;
+    }
+    .gif-tabs { display: flex; gap: 4px; background: var(--hover); padding: 3px; border-radius: 12px; }
+    .gif-tabs button { flex: 1; padding: 7px 0; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--muted); }
+    .gif-tabs button.active { background: var(--panel); color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .gif-search {
+      width: 100%; padding: 9px 12px; border-radius: 11px;
+      border: 1px solid var(--border); background: var(--bg); font-size: 13.5px;
+    }
+    .gif-search:focus { outline: none; border-color: var(--primary); }
+    .gif-body { flex: 1; min-height: 0; overflow-y: auto; }
+    .gif-grid { columns: 2; column-gap: 6px; }
+    .gif-grid button { display: block; width: 100%; margin-bottom: 6px; border-radius: 10px; overflow: hidden; background: var(--hover); break-inside: avoid; }
+    .gif-grid img { width: 100%; height: auto; }
+    .gif-grid button:hover { outline: 2px solid var(--primary); }
+    .sticker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .sticker-grid button { font-size: 34px; padding: 8px 0; border-radius: 12px; transition: transform .12s, background .12s; }
+    .sticker-grid button:hover { background: var(--hover); transform: scale(1.15) rotate(-6deg); }
+    .gif-note { font-size: 12.5px; color: var(--muted); text-align: center; padding: 18px 10px; line-height: 1.5; }
+    .gif-credit { font-size: 10.5px; color: var(--muted); text-align: right; }
+
+    .meme-maker { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; }
+    .meme-canvas { flex: none; width: 100%; max-width: 200px; aspect-ratio: 1; margin: 0 auto; border-radius: 12px; display: block; background: var(--hover); }
+    .meme-templates { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+    .meme-templates button {
+      flex: none; width: 40px; height: 40px; border-radius: 10px; font-size: 20px;
+      display: grid; place-items: center; border: 2px solid transparent;
+    }
+    .meme-templates button.active { border-color: var(--primary); }
+    .meme-maker input[type="text"] {
+      width: 100%; padding: 8px 11px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg); font-size: 13px;
+    }
+    .meme-send {
+      flex: none; padding: 9px 0; border-radius: 11px; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, #7C3AED, #EC4899);
+    }
+    .meme-send:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* stickers + gifs in the thread */
+    .msg.sticker-row .bubble { background: none !important; box-shadow: none; padding: 0; font-size: 64px; line-height: 1.1; }
+    .sticker-emoji { display: inline-block; animation: stickerPop .5s cubic-bezier(.3, 1.6, .5, 1); }
+    @keyframes stickerPop { from { transform: scale(.3) rotate(-15deg); } to { transform: scale(1) rotate(0); } }
+    .msg-img.gif { max-width: 240px; min-width: 120px; min-height: 80px; object-fit: cover; background: rgba(124, 58, 237, .08); }
+    .gif-tag {
+      position: absolute; left: 8px; bottom: 8px; font-size: 10px; font-weight: 800;
+      background: rgba(0, 0, 0, .55); color: #fff; padding: 2px 6px; border-radius: 6px;
+    }
+    .img-wrap { position: relative; }
+    .fwd-label { display: block; font-size: 11.5px; font-style: italic; opacity: .8; margin-bottom: 3px; }
+    .edited-label { font-size: 10px; color: var(--muted); margin: 2px 6px 0; }
+
+    /* message "more" menu */
+    .react-bar .more-btn { font-size: 16px; color: var(--muted); }
+    .msg-menu {
+      position: fixed; z-index: 80; min-width: 190px;
+      padding: 6px; border-radius: 14px;
+      background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow);
+    }
+    .msg-menu button {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      padding: 9px 10px; border-radius: 9px; font-size: 13.5px; text-align: left;
+    }
+    .msg-menu button:hover, .msg-menu button:focus-visible { background: var(--hover); }
+    .msg-menu button.danger { color: var(--danger); }
+    .msg-menu .menu-sep { height: 1px; background: var(--border); margin: 4px 6px; }
+
+    .edit-preview b { color: var(--accent); }
+
+    /* media viewer */
+    .lightbox { overflow: hidden; touch-action: none; }
+    .lightbox img { transition: transform .2s; cursor: zoom-in; user-select: none; -webkit-user-drag: none; }
+    .lightbox img.zoomed { cursor: zoom-out; transition: none; }
+    .lb-nav {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(255, 255, 255, .16); color: #fff; font-size: 26px;
+      display: grid; place-items: center; z-index: 2;
+    }
+    .lb-nav:hover { background: rgba(255, 255, 255, .3); }
+    .lb-nav.prev { left: 18px; }
+    .lb-nav.next { right: 18px; }
+    .lb-tools {
+      position: fixed; top: 18px; left: 22px; right: 80px;
+      display: flex; align-items: center; gap: 8px; color: #fff; z-index: 2;
+    }
+    .lb-tools .lb-count { font-size: 13px; font-weight: 600; opacity: .9; margin-right: auto; }
+    .lb-tools button {
+      height: 40px; padding: 0 14px; border-radius: 999px;
+      background: rgba(255, 255, 255, .16); color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .lb-tools button:hover { background: rgba(255, 255, 255, .3); }
+    .lb-caption {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      max-width: min(640px, 90vw); color: #fff; font-size: 13.5px; text-align: center;
+      background: rgba(0, 0, 0, .45); padding: 6px 12px; border-radius: 10px;
+    }
+
+    .bot-badge {
+      display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; vertical-align: middle;
+      padding: 2px 6px; border-radius: 6px; color: #fff; background: linear-gradient(135deg, #7C3AED, #EC4899);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sticker-emoji { animation: none; }
+      .lightbox img { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -964,10 +1084,32 @@
           </button>
           <textarea id="msgInput" rows="1" placeholder="Type something fun…" aria-label="Message" autocomplete="off"></textarea>
           <button class="icon-btn" id="emojiBtn" aria-label="Open emoji picker" aria-expanded="false" title="Emoji" type="button">😊</button>
+          <button class="icon-btn gif-btn" id="gifBtn" aria-label="GIFs, stickers and memes" aria-expanded="false" aria-controls="gifPanel" title="GIFs, stickers & memes" type="button"><span>GIF</span></button>
           <button class="send-btn" id="sendBtn" aria-label="Send message" type="button"></button>
         </div>
 
         <div class="emoji-picker hidden" id="emojiPicker" role="group" aria-label="Emoji picker"></div>
+        <div class="gif-panel hidden" id="gifPanel" role="dialog" aria-label="GIFs, stickers and memes">
+          <div class="gif-tabs" role="tablist">
+            <button type="button" role="tab" data-gif-tab="gif" class="active" aria-selected="true">GIFs</button>
+            <button type="button" role="tab" data-gif-tab="sticker" aria-selected="false">Stickers</button>
+            <button type="button" role="tab" data-gif-tab="meme" aria-selected="false">Meme maker</button>
+          </div>
+          <input class="gif-search" id="gifSearch" type="search" placeholder="Search GIFs…" aria-label="Search GIFs" autocomplete="off" />
+          <div class="gif-body" id="gifBody"></div>
+          <div class="meme-maker hidden" id="memeMaker">
+            <canvas class="meme-canvas" id="memeCanvas" width="600" height="600" aria-label="Meme preview"></canvas>
+            <div class="meme-templates" id="memeTemplates" role="group" aria-label="Meme backgrounds"></div>
+            <input type="text" id="memeTop" maxlength="60" placeholder="Top text" aria-label="Top text" />
+            <input type="text" id="memeBottom" maxlength="60" placeholder="Bottom text" aria-label="Bottom text" />
+            <input type="file" id="memePhoto" accept="image/*" class="hidden" />
+            <button type="button" class="meme-send" id="memeSend">Send meme 🚀</button>
+          </div>
+        </div>
+        <div class="reply-preview edit-preview hidden" id="editPreview">
+          <div class="grow"><b>✏️ Editing message</b> — press Enter to save</div>
+          <button class="icon-btn sm" id="cancelEdit" aria-label="Cancel editing" type="button">✕</button>
+        </div>
         <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt,.zip" />
       </div>
     </section>
@@ -1014,7 +1156,15 @@
 <!-- ========================= LIGHTBOX ========================= -->
 <div class="lightbox hidden" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
   <button class="close" id="lightboxClose" aria-label="Close image" type="button">✕</button>
+  <div class="lb-tools">
+    <span class="lb-count" id="lbCount"></span>
+    <button type="button" id="lbZoom" aria-label="Zoom in">🔍 Zoom</button>
+    <button type="button" id="lbDownload" aria-label="Download image">⬇ Download</button>
+  </div>
+  <button class="lb-nav prev" id="lbPrev" aria-label="Previous image" type="button">‹</button>
+  <button class="lb-nav next" id="lbNext" aria-label="Next image" type="button">›</button>
   <img id="lightboxImg" alt="Shared image preview" />
+  <p class="lb-caption hidden" id="lbCaption"></p>
 </div>
 
 <!-- ========================= NEW CHAT MODAL ========================= -->
@@ -1030,6 +1180,21 @@
     <div class="contact-list" id="contactList"></div>
   </div>
 </div>
+
+<div class="modal-backdrop hidden" id="forwardModal" role="dialog" aria-modal="true" aria-labelledby="forwardTitle">
+  <div class="modal">
+    <div class="modal-top">
+      <div>
+        <h2 id="forwardTitle">Forward to…</h2>
+        <p>Pick a chat to send this message to.</p>
+      </div>
+      <button class="icon-btn modal-close" id="closeForward" aria-label="Close" type="button">✕</button>
+    </div>
+    <div class="contact-list" id="forwardList"></div>
+  </div>
+</div>
+
+<div class="msg-menu hidden" id="msgMenu" role="menu" aria-label="Message actions"></div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="heads-layer" id="headsLayer" aria-label="Floating chat windows"></div>
@@ -1399,6 +1564,81 @@ const Storage = {
   },
 };
 
+/* ------------------------------------------------------------
+   PingBot — the AI chat. It lives on this device (localStorage),
+   in demo mode and when signed in. src/live.js plugs in the real
+   AI (Supabase Edge Function → Google Gemini free tier).
+   ------------------------------------------------------------ */
+const BOT_ID = 'pingbot';
+const Bot = {
+  key: 'pingme.bot.demo',
+  ask: null,              // async (history) => reply text — set by src/live.js
+  build() {
+    return {
+      id: BOT_ID, bot: true,
+      name: 'PingBot', color: '#7C3AED', online: true, lastSeen: 'Always here',
+      pinned: true, unread: 0, muted: false, blocked: false,
+      about: 'Your AI buddy 🤖 — ask me anything, get message ideas or a joke. Powered by Google Gemini.',
+      messages: [{
+        id: 'bot_hello', from: 'them', type: 'text', time: new Date().toISOString(), reactions: {},
+        text: 'Hey! I’m PingBot 🤖✨ Ask me anything — reply ideas, jokes, plans for the weekend. What’s up?',
+      }],
+    };
+  },
+  load() {
+    try {
+      const raw = localStorage.getItem(this.key);
+      const saved = raw ? JSON.parse(raw) : null;
+      if (saved && Array.isArray(saved.messages)) {
+        const conv = this.build();
+        conv.messages = saved.messages;
+        conv.muted = !!saved.muted;
+        return conv;
+      }
+    } catch { /* fall through */ }
+    return this.build();
+  },
+  save() {
+    const conv = Store.get(BOT_ID);
+    if (!conv) return;
+    try {
+      localStorage.setItem(this.key, JSON.stringify({
+        muted: !!conv.muted,
+        messages: conv.messages.slice(-200).map(({ _new, _raw, ...m }) => m),
+      }));
+    } catch { /* storage full — ignore */ }
+  },
+  /** Make sure the bot chat exists in the current conversation list. */
+  attach(key) {
+    if (key) this.key = key;
+    const list = Store.state.conversations;
+    const i = list.findIndex((c) => c.id === BOT_ID);
+    const conv = this.load();
+    if (i >= 0) list[i] = conv; else list.unshift(conv);
+  },
+};
+
+const BOT_DEMO_REPLIES = [
+  'In demo mode I can only do canned answers 🙈 Log in and I’ll reply with real AI!',
+  'Fun fact: octopuses have three hearts 🐙 (Log in for smarter answers!)',
+  'Why did the phone wear glasses? It lost its contacts 🤓',
+  'I’d say: go for it! 🚀 (I get much smarter once you log in.)',
+  'Try sending a sticker or a meme — they’re way more fun 😄',
+];
+
+function botHistory(conv) {
+  return conv.messages
+    .filter((m) => !m._botError)
+    .slice(-20)
+    .map((m) => {
+      let content = m.text || '';
+      if (m.type === 'sticker') content = m.sticker || '';
+      else if (m.type === 'image') content = (m.gif ? '[sent a GIF] ' : m.meme ? '[sent a meme] ' : '[sent a photo] ') + (m.text || '');
+      else if (m.type === 'file') content = '[sent a file: ' + (m.file ? m.file.name : 'file') + '] ' + (m.text || '');
+      return { role: m.from === 'me' ? 'user' : 'assistant', content: content.trim() || '👍' };
+    });
+}
+
 const Store = {
   state: null,
   listeners: new Set(),
@@ -1415,13 +1655,44 @@ const Store = {
         conversations: buildConversations(),
       };
     }
+    Bot.attach();
     document.documentElement.dataset.theme = this.state.theme || 'light';
   },
 
   subscribe(fn) { this.listeners.add(fn); },
   emit() {
     Storage.save(this.state);
+    Bot.save();
     this.listeners.forEach((fn) => fn());
+  },
+
+  findMsg(convId, msgId) {
+    const conv = this.get(convId);
+    return conv ? conv.messages.find((m) => m.id === msgId) || null : null;
+  },
+
+  editMessage(convId, msgId, text) {
+    const msg = this.findMsg(convId, msgId);
+    if (!msg || msg.from !== 'me') return false;
+    msg.text = text;
+    msg.edited = true;
+    this.emit();
+    return true;
+  },
+
+  /** Hide a message only for me. */
+  deleteForMe(convId, msgId) {
+    const conv = this.get(convId);
+    if (!conv) return;
+    conv.messages = conv.messages.filter((m) => m.id !== msgId);
+    this.emit();
+  },
+
+  /** Unsend: removes the message for everyone in the chat. */
+  deleteForAll(convId, msgId) {
+    const msg = this.findMsg(convId, msgId);
+    if (!msg || msg.from !== 'me') return;
+    this.deleteForMe(convId, msgId);
   },
 
   /** Conversations: pinned first, then most recent activity. */
@@ -1566,6 +1837,11 @@ const UI = {
   newCount: 0,
   heads: [],                 // [{ convId, minimized }] — max 3
   headDrafts: {},            // convId -> draft text
+  editing: null,             // { convId, msgId } while editing a sent message
+  gifOpen: false,
+  gifProvider: null,         // async (query) => [{ url, preview, title }] — set by src/live.js
+  menuFor: null,             // { convId, msgId } for the open "⋯" menu
+  forwarding: null,          // { convId, msgId } while picking a forward target
   timers: new Set(),
 };
 
@@ -1595,7 +1871,8 @@ function lastPreview(conv) {
   if (!last) return 'No messages yet. Say hi! 👋';
   const who = last.from === 'me' ? 'You: ' : '';
   let body;
-  if (last.type === 'image') body = '📷 Photo';
+  if (last.type === 'image') body = last.gif ? '🎞️ GIF' : last.meme ? '😂 Meme' : '📷 Photo';
+  else if (last.type === 'sticker') body = (last.sticker || '') + ' Sticker';
   else if (last.type === 'file') body = '📄 ' + (last.file ? last.file.name : 'File');
   else body = (last.text || '').replace(/\s+/g, ' ');
   if (body.length > 70) body = body.slice(0, 70) + '…';
@@ -1682,10 +1959,17 @@ function renderReplyQuote(reply) {
 }
 
 function bubbleInner(msg) {
-  let inner = renderReplyQuote(msg.replyTo);
+  let inner = (msg.forwarded ? '<span class="fwd-label">↪ Forwarded</span>' : '') + renderReplyQuote(msg.replyTo);
+
+  if (msg.type === 'sticker') {
+    return (msg.forwarded ? '<span class="fwd-label" style="font-size:11.5px">↪ Forwarded</span>' : '') +
+      '<span class="sticker-emoji" role="img" aria-label="Sticker ' + esc(msg.sticker || '') + '">' + esc(msg.sticker || '🙂') + '</span>';
+  }
 
   if (msg.type === 'image' && msg.image) {
-    inner += '<img class="msg-img" src="' + msg.image + '" alt="' + esc(msg.text || 'Shared photo') + '" data-lightbox="' + msg.image + '" loading="lazy" />';
+    const src = esc(msg.image);
+    inner += '<div class="img-wrap"><img class="msg-img' + (msg.gif ? ' gif' : '') + '" src="' + src + '" alt="' + esc(msg.text || (msg.gif ? 'GIF' : msg.meme ? 'Meme' : 'Shared photo')) + '" data-lightbox="' + src + '" loading="lazy" />' +
+      (msg.gif ? '<span class="gif-tag" aria-hidden="true">GIF</span>' : '') + '</div>';
     if (msg.text) inner += '<div class="caption">' + linkify(msg.text) + '</div>';
     return inner;
   }
@@ -1716,6 +2000,7 @@ function reactionBar(msg) {
   return '<div class="react-bar" role="group" aria-label="React to message">' +
     REACT_STICKERS.map((e) => '<button type="button" data-react="' + e + '" data-msg="' + msg.id + '" aria-label="React with ' + e + '">' + e + '</button>').join('') +
     '<button type="button" class="reply-btn" data-reply="' + msg.id + '" aria-label="Reply to message">↩ Reply</button>' +
+    '<button type="button" class="more-btn" data-more="' + msg.id + '" aria-label="More actions: copy, forward, edit, delete" aria-haspopup="menu">⋯</button>' +
   '</div>';
 }
 
@@ -1751,7 +2036,7 @@ function renderMessages(conv) {
     const sameNext = !!(next && next.from === m.from && new Date(next.time) - new Date(m.time) < 10 * 60000 && new Date(next.time).toDateString() === day);
     const gc = groupClass(prev, m, next, samePrev, sameNext);
 
-    const cls = ['msg', m.from === 'me' ? 'me' : 'them', gc, samePrev ? 'grouped' : '', m._new ? 'pop' : ''].join(' ').trim();
+    const cls = ['msg', m.from === 'me' ? 'me' : 'them', gc, samePrev ? 'grouped' : '', m._new ? 'pop' : '', m.type === 'sticker' ? 'sticker-row' : ''].join(' ').trim();
 
     html += '<div class="' + cls + '" data-msg-wrap="' + m.id + '">';
 
@@ -1759,6 +2044,7 @@ function renderMessages(conv) {
 
     html += '<div class="bubble-wrap">' + reactionBar(m) +
       '<div class="bubble">' + bubbleInner(m) + '</div>' +
+      (m.edited ? '<span class="edited-label">Edited</span>' : '') +
       reactionsHTML(m) +
     '</div>';
 
@@ -1819,7 +2105,7 @@ function renderConversation() {
 
   $('#convAvatar').textContent = conv.avatarUrl ? '' : initials(conv.name);
   $('#convAvatar').style.cssText = 'width:40px;height:40px;font-size:14px;' + (conv.avatarUrl ? 'background-image:url(' + conv.avatarUrl + ');background-size:cover;background-position:center' : avatarBg(conv.color));
-  $('#convName').textContent = conv.name;
+  $('#convName').innerHTML = esc(conv.name) + (conv.bot ? '<span class="bot-badge">AI</span>' : '');
   const st = $('#convStatus');
   st.textContent = conv.online ? 'Active now' : (conv.lastSeen || 'Offline');
   st.classList.toggle('offline', !conv.online);
@@ -1856,6 +2142,7 @@ function renderInfo(conv) {
   st.textContent = conv.online ? 'Active now' : (conv.lastSeen || 'Offline');
   st.classList.toggle('offline', !conv.online);
   $('#infoAbout').textContent = conv.about || 'Hey there! I am using PingMe.';
+  $('#blockBtn').classList.toggle('hidden', !!conv.bot);
 
   const mute = $('#muteBtn');
   mute.classList.toggle('on', !!conv.muted);
@@ -1921,7 +2208,8 @@ function updateSendBtn() {
    9. RENDER — FLOATING CHAT HEADS (max 3, minimisable)
    ============================================================ */
 function headText(msg) {
-  if (msg.type === 'image') return '📷 Photo' + (msg.text ? ' — ' + msg.text : '');
+  if (msg.type === 'sticker') return msg.sticker || '🙂';
+  if (msg.type === 'image') return (msg.gif ? '🎞️ GIF' : msg.meme ? '😂 Meme' : '📷 Photo') + (msg.text ? ' — ' + msg.text : '');
   if (msg.type === 'file') return '📄 ' + (msg.file ? msg.file.name : 'File');
   return msg.text || '';
 }
@@ -2021,17 +2309,154 @@ function toast(text) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
+/* Media viewer: swipe / arrow keys between every photo in the chat,
+   tap or wheel to zoom, pinch to zoom on phones, download. */
+const Viewer = { items: [], index: 0, scale: 1, x: 0, y: 0, pinch: null, drag: null, swipeX: null };
+
+function viewerItems() {
+  const conv = Store.getOpen();
+  if (!conv) return [];
+  return conv.messages
+    .filter((m) => m.type === 'image' && m.image)
+    .map((m) => ({ src: m.image, caption: m.text || '', name: (m.file && m.file.name) || (m.gif ? 'pingme.gif' : 'pingme-photo.jpg') }));
+}
+
 function openLightbox(src) {
   if (!src) return;
-  const lb = $('#lightbox');
-  $('#lightboxImg').src = src;
-  lb.classList.remove('hidden');
+  Viewer.items = viewerItems();
+  let i = Viewer.items.findIndex((it) => it.src === src);
+  if (i < 0) { Viewer.items = [{ src, caption: '', name: 'pingme-photo.jpg' }]; i = 0; }
+  Viewer.index = i;
+  showViewerItem();
+  $('#lightbox').classList.remove('hidden');
   $('#lightboxClose').focus();
+}
+
+function showViewerItem() {
+  const it = Viewer.items[Viewer.index];
+  if (!it) return;
+  resetZoom();
+  $('#lightboxImg').src = it.src;
+  const many = Viewer.items.length > 1;
+  $('#lbCount').textContent = many ? (Viewer.index + 1) + ' / ' + Viewer.items.length : '';
+  $('#lbPrev').classList.toggle('hidden', !many);
+  $('#lbNext').classList.toggle('hidden', !many);
+  const cap = $('#lbCaption');
+  cap.textContent = it.caption;
+  cap.classList.toggle('hidden', !it.caption);
+}
+
+function stepViewer(dir) {
+  if (Viewer.items.length < 2) return;
+  Viewer.index = (Viewer.index + dir + Viewer.items.length) % Viewer.items.length;
+  showViewerItem();
+}
+
+function applyZoom() {
+  const img = $('#lightboxImg');
+  img.style.transform = Viewer.scale === 1 ? '' : 'translate(' + Viewer.x + 'px,' + Viewer.y + 'px) scale(' + Viewer.scale + ')';
+  img.classList.toggle('zoomed', Viewer.scale > 1);
+  $('#lbZoom').textContent = Viewer.scale > 1 ? '🔍 Reset' : '🔍 Zoom';
+}
+
+function resetZoom() { Viewer.scale = 1; Viewer.x = 0; Viewer.y = 0; applyZoom(); }
+
+function setZoom(scale) {
+  Viewer.scale = Math.min(4, Math.max(1, scale));
+  if (Viewer.scale === 1) { Viewer.x = 0; Viewer.y = 0; }
+  applyZoom();
+}
+
+async function downloadViewerItem() {
+  const it = Viewer.items[Viewer.index];
+  if (!it) return;
+  try {
+    const blob = await (await fetch(it.src)).blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = it.name || 'pingme-photo';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  } catch {
+    window.open(it.src, '_blank', 'noopener');
+  }
 }
 
 function closeLightbox() {
   $('#lightbox').classList.add('hidden');
   $('#lightboxImg').removeAttribute('src');
+  resetZoom();
+}
+
+function bindViewer() {
+  const lb = $('#lightbox');
+  const img = $('#lightboxImg');
+  $('#lbPrev').addEventListener('click', (e) => { e.stopPropagation(); stepViewer(-1); });
+  $('#lbNext').addEventListener('click', (e) => { e.stopPropagation(); stepViewer(1); });
+  $('#lbZoom').addEventListener('click', (e) => { e.stopPropagation(); setZoom(Viewer.scale > 1 ? 1 : 2); });
+  $('#lbDownload').addEventListener('click', (e) => { e.stopPropagation(); downloadViewerItem(); });
+
+  img.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (Viewer.drag && Viewer.drag.moved) return;
+    setZoom(Viewer.scale > 1 ? 1 : 2);
+  });
+
+  lb.addEventListener('wheel', (e) => {
+    if (lb.classList.contains('hidden')) return;
+    e.preventDefault();
+    setZoom(Viewer.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
+  }, { passive: false });
+
+  // drag to pan while zoomed (mouse)
+  img.addEventListener('mousedown', (e) => {
+    if (Viewer.scale <= 1) return;
+    e.preventDefault();
+    Viewer.drag = { x: e.clientX - Viewer.x, y: e.clientY - Viewer.y, moved: false };
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!Viewer.drag) return;
+    Viewer.x = e.clientX - Viewer.drag.x;
+    Viewer.y = e.clientY - Viewer.drag.y;
+    Viewer.drag.moved = true;
+    applyZoom();
+  });
+  window.addEventListener('mouseup', () => { setTimeout(() => { Viewer.drag = null; }, 0); });
+
+  // touch: swipe between photos, pinch to zoom, drag to pan
+  const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  lb.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      Viewer.pinch = { d: dist(e.touches), scale: Viewer.scale };
+      Viewer.swipeX = null;
+    } else if (e.touches.length === 1) {
+      const t = e.touches[0];
+      Viewer.swipeX = Viewer.scale === 1 ? t.clientX : null;
+      Viewer.drag = Viewer.scale > 1 ? { x: t.clientX - Viewer.x, y: t.clientY - Viewer.y, moved: false } : null;
+    }
+  }, { passive: true });
+  lb.addEventListener('touchmove', (e) => {
+    if (Viewer.pinch && e.touches.length === 2) {
+      setZoom(Viewer.pinch.scale * (dist(e.touches) / Viewer.pinch.d));
+    } else if (Viewer.drag && e.touches.length === 1) {
+      const t = e.touches[0];
+      Viewer.x = t.clientX - Viewer.drag.x;
+      Viewer.y = t.clientY - Viewer.drag.y;
+      Viewer.drag.moved = true;
+      applyZoom();
+    }
+  }, { passive: true });
+  lb.addEventListener('touchend', (e) => {
+    if (Viewer.swipeX !== null && e.changedTouches.length) {
+      const dx = e.changedTouches[0].clientX - Viewer.swipeX;
+      if (Math.abs(dx) > 50) stepViewer(dx < 0 ? 1 : -1);
+    }
+    if (e.touches.length < 2) Viewer.pinch = null;
+    if (!e.touches.length) { Viewer.swipeX = null; Viewer.drag = null; }
+  });
 }
 /* ============================================================
    13. SENDING & DEMO SIMULATION
@@ -2044,10 +2469,12 @@ function clearComposer() {
   UI.replyTo = null;
   UI.attachment = null;
   UI.openPicker = false;
+  UI.editing = null;
   $('#fileInput').value = '';
   renderAttachment();
   renderEmojiPicker();
   $('#replyPreview').classList.add('hidden');
+  $('#editPreview').classList.add('hidden');
   updateSendBtn();
 }
 
@@ -2059,6 +2486,8 @@ function sendTo(convId, payload) {
 
   UI.stickBottom = true;
   scrollBottom(true);
+
+  if (conv.bot) { replyFromBot(convId, msg.id); return; }
 
   if (Runtime.demoReplies) {
     // Demo read receipts: Sending → Sent → Delivered (→ Seen when they reply)
@@ -2090,11 +2519,41 @@ function simulateReply(convId) {
   }, delay);
 }
 
+/** PingBot: real AI when signed in (Bot.ask from src/live.js), canned replies in demo mode. */
+async function replyFromBot(convId, msgId) {
+  const conv = Store.get(convId);
+  if (!conv) return;
+  Store.setStatus(convId, msgId, 'seen');
+  UI.typing[convId] = true;
+  renderAll();
+  afterRenderScroll();
+
+  let text;
+  let failed = false;
+  if (typeof Bot.ask === 'function') {
+    try {
+      text = await Bot.ask(botHistory(conv));
+    } catch (err) {
+      failed = true;
+      text = (err && err.botMessage) || 'Oops, my AI brain is offline right now 😵 Try again in a minute.';
+    }
+  } else {
+    await new Promise((r) => later(r, 700 + Math.random() * 700));
+    text = pick(BOT_DEMO_REPLIES);
+  }
+
+  UI.typing[convId] = false;
+  const wasScrolledUp = !UI.stickBottom;
+  Store.receive(convId, { type: 'text', text: text || '🤔', _botError: failed || undefined });
+  if (wasScrolledUp) UI.newCount += 1;
+  renderNewPill();
+}
+
 function currentAttachmentPayload(text) {
   const a = UI.attachment;
   if (!a) return null;
-  if (a.kind === 'image') return { type: 'image', image: a.dataUrl, text: text || '', file: { name: a.name, size: a.size } };
-  return { type: 'file', file: { name: a.name, size: a.size }, text: text || '' };
+  if (a.kind === 'image') return { type: 'image', image: a.dataUrl, text: text || '', file: { name: a.name, size: a.size }, _raw: a.raw };
+  return { type: 'file', file: { name: a.name, size: a.size }, text: text || '', _raw: a.raw };
 }
 
 function sendCurrent() {
@@ -2103,6 +2562,14 @@ function sendCurrent() {
 
   const input = $('#msgInput');
   const text = input.value.replace(/\s+/g, ' ').trim();
+
+  if (UI.editing && UI.editing.convId === conv.id) {
+    if (!text) { toast('A message can’t be empty — use Delete instead'); return; }
+    Store.editMessage(conv.id, UI.editing.msgId, text);
+    toast('Message edited ✏️');
+    clearComposer();
+    return;
+  }
 
   // Ignore empty / whitespace-only messages unless it is a quick 👍
   if (!text && !UI.attachment) {
@@ -2130,8 +2597,7 @@ function sendFromHead(convId) {
   const text = input.value.replace(/\s+/g, ' ').trim();
   if (!text) return;
   UI.headDrafts[convId] = '';
-  Store.send(convId, { type: 'text', text });
-  simulateReply(convId);
+  sendTo(convId, { type: 'text', text });
 }
 
 /* ============================================================
@@ -2174,9 +2640,443 @@ async function handleFile(file) {
 }
 
 /* ============================================================
+   14b. GIFs, STICKERS & MEME MAKER
+   ------------------------------------------------------------
+   GIF search uses UI.gifProvider (set by src/live.js → GIPHY
+   via a Supabase Edge Function). Stickers and the meme maker
+   need no API key at all.
+   ============================================================ */
+const STICKERS = ['😂','🤣','😍','🥰','😎','🤩','🥳','😭','😱','🤯','🙈','🤡','👻','💀','🤖','👽','🐶','🐱','🦄','🐼','🔥','💯','🎉','❤️','💔','👀','🙏','👏','💪','🚀','🌈','🍕','🍿','☕','🏏','⚽','🎮','🎧','🪔','✨'];
+
+const MEME_TEMPLATES = [
+  { id: 'fire',   c1: '#F59E0B', c2: '#DC2626', emoji: '🔥' },
+  { id: 'shock',  c1: '#7C3AED', c2: '#EC4899', emoji: '😱' },
+  { id: 'cool',   c1: '#0EA5E9', c2: '#6366F1', emoji: '😎' },
+  { id: 'cry',    c1: '#64748B', c2: '#1E293B', emoji: '😭' },
+  { id: 'think',  c1: '#10B981', c2: '#0F766E', emoji: '🤔' },
+  { id: 'clown',  c1: '#F43F5E', c2: '#F59E0B', emoji: '🤡' },
+  { id: 'dog',    c1: '#FDE68A', c2: '#F59E0B', emoji: '🐶' },
+  { id: 'brain',  c1: '#C084FC', c2: '#312E81', emoji: '🧠' },
+];
+
+const Gifs = {
+  tab: 'gif',
+  query: '',
+  results: [],
+  loading: false,
+  error: '',
+  reqId: 0,
+  meme: { template: MEME_TEMPLATES[0].id, photo: null },
+};
+
+function setGifPanel(open) {
+  UI.gifOpen = open;
+  $('#gifPanel').classList.toggle('hidden', !open);
+  $('#gifBtn').setAttribute('aria-expanded', String(open));
+  if (open) {
+    UI.openPicker = false;
+    renderEmojiPicker();
+    renderGifPanel();
+    if (Gifs.tab === 'gif' && !Gifs.results.length && !Gifs.loading) loadGifs('');
+    if (Gifs.tab !== 'meme') setTimeout(() => $('#gifSearch').focus(), 30);
+  }
+}
+
+function renderGifPanel() {
+  $$('[data-gif-tab]').forEach((b) => {
+    const on = b.getAttribute('data-gif-tab') === Gifs.tab;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', String(on));
+  });
+  const search = $('#gifSearch');
+  const body = $('#gifBody');
+  const maker = $('#memeMaker');
+  search.classList.toggle('hidden', Gifs.tab === 'meme');
+  body.classList.toggle('hidden', Gifs.tab === 'meme');
+  maker.classList.toggle('hidden', Gifs.tab !== 'meme');
+  search.placeholder = Gifs.tab === 'sticker' ? 'Search stickers… (try 🐶 or fire)' : 'Search GIFs…';
+
+  if (Gifs.tab === 'sticker') {
+    const q = search.value.trim();
+    const list = q ? STICKERS.filter((s) => s.includes(q)) : STICKERS;
+    body.innerHTML = '<div class="sticker-grid">' + (list.length ? list : STICKERS).map((s) =>
+      '<button type="button" data-sticker="' + s + '" aria-label="Send sticker ' + s + '">' + s + '</button>').join('') + '</div>';
+    return;
+  }
+
+  if (Gifs.tab === 'meme') { renderMemeTemplates(); drawMeme(); return; }
+
+  if (!UI.gifProvider) {
+    body.innerHTML = '<p class="gif-note">🎞️ GIF search turns on when you’re logged in and the free GIPHY key is set up.<br><br>Meanwhile, try the <b>Stickers</b> and <b>Meme maker</b> tabs — they always work! 😄</p>';
+    return;
+  }
+  if (Gifs.loading && !Gifs.results.length) { body.innerHTML = '<p class="gif-note">Loading GIFs… ⏳</p>'; return; }
+  if (Gifs.error) { body.innerHTML = '<p class="gif-note">' + esc(Gifs.error) + '</p>'; return; }
+  if (!Gifs.results.length) { body.innerHTML = '<p class="gif-note">No GIFs found for “' + esc(Gifs.query) + '” 🤷</p>'; return; }
+  body.innerHTML = '<div class="gif-grid">' + Gifs.results.map((g, i) =>
+    '<button type="button" data-gif="' + i + '" aria-label="Send GIF: ' + esc(g.title || 'GIF') + '">' +
+      '<img src="' + esc(g.preview || g.url) + '" alt="' + esc(g.title || 'GIF') + '" loading="lazy" /></button>').join('') +
+    '</div><p class="gif-credit">Powered by GIPHY</p>';
+}
+
+async function loadGifs(q) {
+  if (!UI.gifProvider) { renderGifPanel(); return; }
+  const req = ++Gifs.reqId;
+  Gifs.query = q;
+  Gifs.loading = true;
+  Gifs.error = '';
+  renderGifPanel();
+  try {
+    const items = await UI.gifProvider(q);
+    if (req !== Gifs.reqId) return;
+    Gifs.results = (items || []).filter((g) => g && g.url);
+  } catch (err) {
+    if (req !== Gifs.reqId) return;
+    Gifs.results = [];
+    Gifs.error = (err && err.gifMessage) || 'Could not load GIFs right now 😕 Try Stickers or the Meme maker.';
+  } finally {
+    if (req === Gifs.reqId) { Gifs.loading = false; renderGifPanel(); }
+  }
+}
+
+function sendSpecial(payload) {
+  const conv = Store.getOpen();
+  if (!conv) return;
+  if (conv.blocked) { toast('You blocked this contact'); return; }
+  if (UI.editing) clearComposer();
+  if (UI.replyTo && UI.replyTo.convId === conv.id) {
+    payload.replyTo = { id: UI.replyTo.msgId, name: UI.replyTo.name, text: UI.replyTo.text, from: UI.replyTo.from };
+    UI.replyTo = null;
+    $('#replyPreview').classList.add('hidden');
+  }
+  setGifPanel(false);
+  sendTo(conv.id, payload);
+}
+
+function renderMemeTemplates() {
+  const wrap = $('#memeTemplates');
+  wrap.innerHTML = MEME_TEMPLATES.map((t) =>
+    '<button type="button" data-meme-tpl="' + t.id + '" class="' + (Gifs.meme.template === t.id && !Gifs.meme.photo ? 'active' : '') + '" ' +
+      'style="background:linear-gradient(135deg,' + t.c1 + ',' + t.c2 + ')" aria-label="Background ' + t.emoji + '">' + t.emoji + '</button>').join('') +
+    '<button type="button" data-meme-photo="1" class="' + (Gifs.meme.photo ? 'active' : '') + '" style="background:var(--hover)" aria-label="Use my own photo" title="Use my own photo">📷</button>';
+}
+
+function wrapLines(ctx, text, maxWidth) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  words.forEach((w) => {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+    else line = test;
+  });
+  if (line) lines.push(line);
+  return lines.slice(0, 3);
+}
+
+function drawMemeText(ctx, text, W, top) {
+  if (!text) return;
+  const upper = text.toUpperCase();
+  let size = 64;
+  let lines;
+  do {
+    ctx.font = '900 ' + size + 'px Impact, "Arial Black", "Anton", sans-serif';
+    lines = wrapLines(ctx, upper, W - 48);
+    size -= 4;
+  } while (size > 28 && lines.some((l) => ctx.measureText(l).width > W - 48));
+  size += 4;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = top ? 'top' : 'bottom';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(6, size / 7);
+  ctx.strokeStyle = '#000';
+  ctx.fillStyle = '#fff';
+  const lh = size * 1.05;
+  lines.forEach((l, i) => {
+    const y = top ? 24 + i * lh : W - 24 - (lines.length - 1 - i) * lh;
+    ctx.strokeText(l, W / 2, y);
+    ctx.fillText(l, W / 2, y);
+  });
+}
+
+function drawMeme() {
+  const canvas = $('#memeCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  ctx.clearRect(0, 0, W, W);
+
+  if (Gifs.meme.photo) {
+    const img = Gifs.meme.photo;
+    const s = Math.max(W / img.width, W / img.height);
+    const w = img.width * s, h = img.height * s;
+    ctx.drawImage(img, (W - w) / 2, (W - h) / 2, w, h);
+  } else {
+    const t = MEME_TEMPLATES.find((x) => x.id === Gifs.meme.template) || MEME_TEMPLATES[0];
+    const g = ctx.createLinearGradient(0, 0, W, W);
+    g.addColorStop(0, t.c1);
+    g.addColorStop(1, t.c2);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, W);
+    ctx.fillStyle = 'rgba(255,255,255,.12)';
+    ctx.beginPath(); ctx.arc(W * 0.82, W * 0.18, W * 0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W * 0.15, W * 0.85, W * 0.26, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = (W * 0.36) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(t.emoji, W / 2, W / 2 + 6);
+  }
+
+  drawMemeText(ctx, $('#memeTop').value.trim(), W, true);
+  drawMemeText(ctx, $('#memeBottom').value.trim(), W, false);
+  $('#memeSend').disabled = !$('#memeTop').value.trim() && !$('#memeBottom').value.trim();
+}
+
+function loadMemePhoto(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => { Gifs.meme.photo = img; renderMemeTemplates(); drawMeme(); };
+    img.onerror = () => toast('Could not read that image 😕');
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function sendMeme() {
+  const top = $('#memeTop').value.trim();
+  const bottom = $('#memeBottom').value.trim();
+  if (!top && !bottom) { toast('Add some meme text first 😄'); return; }
+  drawMeme();
+  let dataUrl;
+  try { dataUrl = $('#memeCanvas').toDataURL('image/jpeg', 0.88); }
+  catch { toast('Could not create that meme 😕'); return; }
+  sendSpecial({ type: 'image', image: dataUrl, meme: true, text: '', file: { name: 'meme.jpg', size: Math.round(dataUrl.length * 0.75) } });
+  $('#memeTop').value = '';
+  $('#memeBottom').value = '';
+  toast('Meme sent 😂');
+}
+
+function bindGifPanel() {
+  $('#gifBtn').addEventListener('click', () => setGifPanel(!UI.gifOpen));
+
+  $('#gifPanel').addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-gif-tab]');
+    if (tab) {
+      Gifs.tab = tab.getAttribute('data-gif-tab');
+      $('#gifSearch').value = Gifs.tab === 'gif' ? Gifs.query : '';
+      renderGifPanel();
+      if (Gifs.tab === 'gif' && !Gifs.results.length && !Gifs.loading) loadGifs(Gifs.query);
+      return;
+    }
+    const gif = e.target.closest('[data-gif]');
+    if (gif) {
+      const g = Gifs.results[Number(gif.getAttribute('data-gif'))];
+      if (g) sendSpecial({ type: 'image', image: g.url, gif: true, text: '', gifMeta: { width: g.width || 0, height: g.height || 0, title: g.title || '' } });
+      return;
+    }
+    const sticker = e.target.closest('[data-sticker]');
+    if (sticker) { sendSpecial({ type: 'sticker', sticker: sticker.getAttribute('data-sticker'), text: '' }); return; }
+    const tpl = e.target.closest('[data-meme-tpl]');
+    if (tpl) { Gifs.meme.template = tpl.getAttribute('data-meme-tpl'); Gifs.meme.photo = null; renderMemeTemplates(); drawMeme(); return; }
+    if (e.target.closest('[data-meme-photo]')) { $('#memePhoto').click(); return; }
+    if (e.target.closest('#memeSend')) sendMeme();
+  });
+
+  let gifTimer = null;
+  $('#gifSearch').addEventListener('input', (e) => {
+    if (Gifs.tab === 'sticker') { renderGifPanel(); return; }
+    clearTimeout(gifTimer);
+    const q = e.target.value.trim();
+    gifTimer = setTimeout(() => loadGifs(q), 350);
+  });
+
+  $('#memeTop').addEventListener('input', drawMeme);
+  $('#memeBottom').addEventListener('input', drawMeme);
+  $('#memePhoto').addEventListener('change', (e) => {
+    loadMemePhoto(e.target.files && e.target.files[0]);
+    e.target.value = '';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!UI.gifOpen) return;
+    if (!e.target.closest('#gifPanel') && !e.target.closest('#gifBtn')) setGifPanel(false);
+  });
+}
+
+/* ============================================================
+   14c. MESSAGE ACTIONS — copy, forward, edit, delete
+   ============================================================ */
+const EDIT_WINDOW_MS = 15 * 60 * 1000;
+
+function canEdit(msg) {
+  return msg && msg.from === 'me' && msg.type === 'text' && !msg.forwarded &&
+    msg.status !== 'sending' && msg.status !== 'failed' &&
+    Date.now() - new Date(msg.time).getTime() < EDIT_WINDOW_MS;
+}
+
+function openMsgMenu(btn, msgId) {
+  const conv = Store.getOpen();
+  const msg = conv && conv.messages.find((m) => m.id === msgId);
+  if (!msg) return;
+  UI.menuFor = { convId: conv.id, msgId };
+
+  const items = [];
+  const copyText = msg.type === 'sticker' ? msg.sticker : (msg.text || '');
+  if (copyText) items.push(['copy', '📋 Copy text']);
+  if (!conv.bot || msg.from === 'them') items.push(['forward', '↪ Forward']);
+  if (canEdit(msg) && !conv.bot) items.push(['edit', '✏️ Edit']);
+  items.push(['sep']);
+  items.push(['delete-me', '🗑️ Delete for me', 'danger']);
+  if (msg.from === 'me' && !conv.bot && msg.status !== 'sending') items.push(['delete-all', '🚫 Unsend for everyone', 'danger']);
+
+  const menu = $('#msgMenu');
+  menu.innerHTML = items.map(([act, label, cls]) => act === 'sep'
+    ? '<div class="menu-sep" role="separator"></div>'
+    : '<button type="button" role="menuitem" data-menu-act="' + act + '" class="' + (cls || '') + '">' + label + '</button>').join('');
+  menu.classList.remove('hidden');
+
+  const r = btn.getBoundingClientRect();
+  const mw = menu.offsetWidth, mh = menu.offsetHeight;
+  let left = msg.from === 'me' ? r.right - mw : r.left;
+  let top = r.bottom + 6;
+  if (top + mh > window.innerHeight - 8) top = r.top - mh - 6;
+  left = Math.max(8, Math.min(left, window.innerWidth - mw - 8));
+  menu.style.left = left + 'px';
+  menu.style.top = Math.max(8, top) + 'px';
+  const first = menu.querySelector('button');
+  if (first) first.focus();
+}
+
+function closeMsgMenu() {
+  $('#msgMenu').classList.add('hidden');
+  UI.menuFor = null;
+}
+
+async function copyMessage(msg) {
+  const text = msg.type === 'sticker' ? msg.sticker : (msg.text || '');
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('Copied 📋');
+  } catch {
+    toast('Could not copy — select the text instead');
+  }
+}
+
+function startEdit(convId, msg) {
+  UI.replyTo = null;
+  UI.attachment = null;
+  renderAttachment();
+  $('#replyPreview').classList.add('hidden');
+  UI.editing = { convId, msgId: msg.id };
+  const input = $('#msgInput');
+  input.value = msg.text || '';
+  $('#editPreview').classList.remove('hidden');
+  autoGrow();
+  updateSendBtn();
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+}
+
+function forwardPayload(msg) {
+  const p = { type: msg.type, text: msg.text || '', forwarded: true };
+  if (msg.type === 'image') { p.image = msg.image; p.gif = !!msg.gif; p.meme = !!msg.meme; p.gifMeta = msg.gifMeta; if (msg.file) p.file = { ...msg.file }; }
+  if (msg.type === 'file') { p.file = msg.file ? { ...msg.file } : { name: 'File', size: 0 }; p.mediaUrl = msg.mediaUrl || ''; }
+  if (msg.type === 'sticker') p.sticker = msg.sticker;
+  return p;
+}
+
+function openForward(convId, msgId) {
+  UI.forwarding = { convId, msgId };
+  const list = Store.list().filter((c) => !c.bot && !c.blocked);
+  $('#forwardList').innerHTML = list.length
+    ? list.map((c) =>
+        '<button type="button" class="contact-row" data-forward-to="' + esc(c.id) + '">' + avatarHTML(c, 'sm') +
+        '<span style="min-width:0"><span class="name">' + esc(c.name) + '</span><br><span class="sub">' + esc(c.username ? '@' + c.username : (c.about || '')) + '</span></span></button>').join('')
+    : '<p class="list-empty">No chats to forward to yet.</p>';
+  $('#forwardModal').classList.remove('hidden');
+  const first = $('#forwardList button');
+  if (first) first.focus();
+}
+
+function closeForward() {
+  $('#forwardModal').classList.add('hidden');
+  UI.forwarding = null;
+}
+
+function runMenuAction(act) {
+  const ref = UI.menuFor;
+  closeMsgMenu();
+  if (!ref) return;
+  const msg = Store.findMsg(ref.convId, ref.msgId);
+  if (!msg) return;
+
+  if (act === 'copy') copyMessage(msg);
+  else if (act === 'forward') openForward(ref.convId, ref.msgId);
+  else if (act === 'edit') {
+    if (canEdit(msg)) startEdit(ref.convId, msg);
+    else toast('Messages can only be edited for 15 minutes ⏳');
+  } else if (act === 'delete-me') {
+    if (UI.editing && UI.editing.msgId === msg.id) clearComposer();
+    Store.deleteForMe(ref.convId, ref.msgId);
+    toast('Deleted for you 🗑️');
+  } else if (act === 'delete-all') {
+    if (!window.confirm('Unsend this message for everyone?')) return;
+    if (UI.editing && UI.editing.msgId === msg.id) clearComposer();
+    Store.deleteForAll(ref.convId, ref.msgId);
+    toast('Message unsent 🚫');
+  }
+}
+
+function bindMessageActions() {
+  $('#msgMenu').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-menu-act]');
+    if (b) runMenuAction(b.getAttribute('data-menu-act'));
+  });
+  $('#msgMenu').addEventListener('keydown', (e) => {
+    const btns = $$('#msgMenu button');
+    const i = btns.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); (btns[i + 1] || btns[0]).focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); (btns[i - 1] || btns[btns.length - 1]).focus(); }
+  });
+  document.addEventListener('click', (e) => {
+    if ($('#msgMenu').classList.contains('hidden')) return;
+    if (!e.target.closest('#msgMenu') && !e.target.closest('[data-more]')) closeMsgMenu();
+  });
+  $('#messages').addEventListener('scroll', () => { if (UI.menuFor) closeMsgMenu(); });
+
+  $('#cancelEdit').addEventListener('click', () => {
+    clearComposer();
+    $('#msgInput').focus();
+  });
+
+  $('#closeForward').addEventListener('click', closeForward);
+  $('#forwardModal').addEventListener('click', (e) => { if (e.target.id === 'forwardModal') closeForward(); });
+  $('#forwardList').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-forward-to]');
+    if (!b || !UI.forwarding) return;
+    const msg = Store.findMsg(UI.forwarding.convId, UI.forwarding.msgId);
+    const target = Store.get(b.getAttribute('data-forward-to'));
+    closeForward();
+    if (!msg || !target) return;
+    sendTo(target.id, forwardPayload(msg));
+    toast('Forwarded to ' + target.name + ' ↪');
+  });
+
+  // info panel → shared photos open in the viewer
+  $('#mediaGrid').addEventListener('click', (e) => {
+    const img = e.target.closest('[data-lightbox]');
+    if (img) openLightbox(img.getAttribute('data-lightbox'));
+  });
+}
+
+/* ============================================================
    15. EVENT WIRING
    ============================================================ */
 function openConversationUI(id) {
+  if (UI.editing && UI.editing.convId !== id) clearComposer();
+  closeMsgMenu();
   Store.open(id);
   if (window.innerWidth <= 900) $('#app').classList.add('mobile-chat');
   const input = $('#msgInput');
@@ -2274,6 +3174,14 @@ function bindEvents() {
     const img = e.target.closest('[data-lightbox]');
     if (img) { openLightbox(img.getAttribute('data-lightbox')); return; }
 
+    const more = e.target.closest('[data-more]');
+    if (more) {
+      const id = more.getAttribute('data-more');
+      if (UI.menuFor && UI.menuFor.msgId === id) closeMsgMenu();
+      else openMsgMenu(more, id);
+      return;
+    }
+
     const chip = e.target.closest('[data-react]');
     const conv = Store.getOpen();
     if (chip && conv) {
@@ -2349,6 +3257,7 @@ function bindEvents() {
 
   $('#emojiBtn').addEventListener('click', () => {
     UI.openPicker = !UI.openPicker;
+    if (UI.openPicker && UI.gifOpen) setGifPanel(false);
     renderEmojiPicker();
   });
 
@@ -2401,10 +3310,17 @@ function bindEvents() {
 
   /* ---- keyboard shortcuts ---- */
   document.addEventListener('keydown', (e) => {
+    const viewerOpen = !$('#lightbox').classList.contains('hidden');
+    if (viewerOpen && e.key === 'ArrowRight') { stepViewer(1); return; }
+    if (viewerOpen && e.key === 'ArrowLeft') { stepViewer(-1); return; }
     if (e.key === 'Escape') {
-      if (!$('#lightbox').classList.contains('hidden')) closeLightbox();
+      if (viewerOpen) { closeLightbox(); return; }
+      if (!$('#msgMenu').classList.contains('hidden')) { closeMsgMenu(); return; }
+      if (!$('#forwardModal').classList.contains('hidden')) { closeForward(); return; }
       if (!$('#newChatModal').classList.contains('hidden')) closeModal();
       if (UI.openPicker) { UI.openPicker = false; renderEmojiPicker(); }
+      if (UI.gifOpen) setGifPanel(false);
+      if (UI.editing) clearComposer();
     }
   });
 
@@ -2450,6 +3366,9 @@ function init() {
     requestAnimationFrame(afterRenderScroll);
   });
   bindEvents();
+  bindViewer();
+  bindGifPanel();
+  bindMessageActions();
   renderAll();
 
   if (Store.state.openId && Store.getOpen()) {
@@ -2464,7 +3383,14 @@ init();
    18. PUBLIC HOOKS for src/live.js (Supabase auth + realtime)
    ============================================================ */
 window.PingMe = {
-  Store, UI, Storage, Runtime,
+  Store, UI, Storage, Runtime, Bot, BOT_ID,
+  // original (on-device) Store methods, so src/live.js can keep PingBot local
+  local: {
+    send: Store.send, open: Store.open, react: Store.react, setStatus: Store.setStatus,
+    markMineSeen: Store.markMineSeen, toggleMute: Store.toggleMute, toggleBlock: Store.toggleBlock,
+    editMessage: Store.editMessage, deleteForMe: Store.deleteForMe, deleteForAll: Store.deleteForAll,
+  },
+  renderGifPanel,
   $, $$, later, esc, initials, avatarBg,
   renderAll, renderConversation, renderChatList, renderHeads,
   openConversationUI, openHead, closeModal, closeLightbox, openLightbox,
