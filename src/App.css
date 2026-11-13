@@ -1,0 +1,42 @@
+:root {
+  --bg: #0f172a;
+  --panel: #111827;
+  --border: #243244;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-2: #0ea5e9;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); }
+
+.app { max-width: 800px; margin: 0 auto; min-height: 100vh; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+.header { text-align: center; }
+.header h1 { margin: 0; font-size: 2rem; color: var(--accent); }
+.status { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+
+.profile label { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 0.9rem; }
+.profile input, .composer input {
+  padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: #0b1220; color: var(--text); font-size: 1rem;
+}
+
+.chat { flex: 1; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; min-height: 420px; }
+.messages { list-style: none; margin: 0; padding: 16px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.empty { color: var(--muted); text-align: center; padding: 24px 0; }
+.message { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; background: #0b1220; border: 1px solid var(--border); border-radius: 8px; }
+.meta { display: flex; gap: 8px; align-items: baseline; font-size: 0.85rem; color: var(--muted); }
+.meta strong { color: var(--accent); }
+.content { white-space: pre-wrap; word-break: break-word; }
+
+.composer { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
+.composer input { flex: 1; }
+.composer button {
+  padding: 10px 16px; border-radius: 8px; border: none; background: var(--accent-2); color: #001018;
+  font-weight: 600; cursor: pointer;
+}
+.composer button:hover { background: var(--accent); }
+
+.footer { text-align: center; color: var(--muted); }
+code { color: var(--accent); }
