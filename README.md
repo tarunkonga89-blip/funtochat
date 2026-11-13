@@ -2,6 +2,9 @@
 
 A basic chatbox platform website built with Vite + React and connected to Supabase (realtime messages).
 
+- Live site: https://funtochat.vercel.app
+- GitHub: https://github.com/tarunkonga89-blip/funtochat
+
 ## Local development
 
 ```bash
