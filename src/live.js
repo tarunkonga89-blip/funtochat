@@ -149,6 +149,7 @@ async function boot() {
   window.__PingMeLive = Live;   // handy while developing
 
   wireAuthUI();
+  hideDisabledProviders();
 
   const { data: { session } } = await Live.sb.auth.getSession();
 
@@ -304,6 +305,23 @@ function wireAuthUI() {
   document.addEventListener('click', (e) => {
     if (!e.target.closest('#accountMenu') && !e.target.closest('#accountBtn')) closeAccountMenu();
   });
+}
+
+/** Hide "Continue with Google" unless Google login is enabled in Supabase (avoids a raw error page). */
+async function hideDisabledProviders() {
+  const btn = $('#googleBtn');
+  if (!btn) return;
+  const divider = btn.previousElementSibling;
+  const show = (on) => {
+    btn.classList.toggle('hidden', !on);
+    if (divider && /divider/.test(divider.className || '')) divider.classList.toggle('hidden', !on);
+  };
+  show(false);
+  try {
+    const res = await fetch(SUPABASE_URL + '/auth/v1/settings', { headers: { apikey: SUPABASE_ANON_KEY } });
+    const cfg = await res.json();
+    if (cfg && cfg.external && cfg.external.google) show(true);
+  } catch { /* keep it hidden */ }
 }
 
 function enterRecoveryMode() {
