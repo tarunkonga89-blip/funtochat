@@ -396,6 +396,7 @@ async function enterLive(user) {
     subscribeDb();
     joinPresence();
     wireTyping();
+    setupCalls();
     Live.booted = true;
     renderAll();
   } catch (err) {
@@ -600,7 +601,16 @@ function toUIMsg(row, byMsg, reactionRows) {
     msg.gif = type === 'gif';
     msg.meme = type === 'meme';
     if (msg.gif) msg.gifMeta = { width: meta.width || 0, height: meta.height || 0, title: meta.title || '' };
-  } else if (type === 'file' || type === 'video' || type === 'voice') {
+  } else if (type === 'voice') {
+    msg.type = 'voice';
+    msg.audio = mediaUrl(row.media_url);
+    msg.duration = meta.duration || 0;
+  } else if (type === 'video') {
+    msg.type = 'video';
+    msg.video = mediaUrl(row.media_url);
+    msg.duration = meta.duration || 0;
+    msg.file = { name: meta.name || 'Video', size: meta.size || 0 };
+  } else if (type === 'file') {
     msg.type = 'file';
     msg.file = { name: meta.name || (type === 'video' ? 'Video' : type === 'voice' ? 'Voice note' : 'File'), size: meta.size || 0 };
     msg.mediaUrl = mediaUrl(row.media_url);
@@ -848,6 +858,15 @@ async function persistMessage(convId, msg) {
       media_path = await uploadMedia(convId, blob, name);
       meta = { name, size: blob.size, mime: blob.type };
       msg.image = Live.media.get(media_path) || msg.image;
+    } else if (msg.type === 'voice' || msg.type === 'video') {
+      dbType = msg.type;
+      const src = msg.type === 'voice' ? msg.audio : msg.video;
+      const blob = raw || await (await fetch(src)).blob();
+      const name = msg.type === 'voice' ? 'voice-note.' + (/mp4/.test(blob.type) ? 'm4a' : 'webm') : (msg.file && msg.file.name) || 'video.mp4';
+      media_path = await uploadMedia(convId, blob, name);
+      meta = { name, size: blob.size, mime: blob.type, duration: Math.round(msg.duration || 0) };
+      const signed = Live.media.get(media_path);
+      if (signed) { if (msg.type === 'voice') msg.audio = signed; else msg.video = signed; }
     } else if (msg.type === 'file' && msg.file) {
       dbType = 'file';
       let blob = raw;
@@ -1028,8 +1047,10 @@ function onIncoming(row) {
   Live.msgConv.set(row.id, row.conversation_id);
   if (isPath(row.media_url)) {
     signMedia([row.media_url]).then(() => {
-      ui.image = mediaUrl(row.media_url);
-      ui.mediaUrl = mediaUrl(row.media_url);
+      const url = mediaUrl(row.media_url);
+      if (ui.type === 'voice') ui.audio = url;
+      else if (ui.type === 'video') ui.video = url;
+      else { ui.image = url; ui.mediaUrl = url; }
       Store.emit();
     });
   }
@@ -1175,6 +1196,52 @@ function wireTyping() {
     if (!Live.user) return;
     Live.sb.auth.getSession();
   });
+}
+
+/* ------------------------------------------------------------
+   Calls — WebRTC signaling over Realtime broadcast.
+   Everyone listens on their own channel; to reach someone we
+   send on theirs.
+   ------------------------------------------------------------ */
+const callChannels = new Map();
+
+function callChannel(userId) {
+  if (callChannels.has(userId)) return callChannels.get(userId);
+  const ch = Live.sb.channel('pingme-call-' + userId, { config: { broadcast: { self: false } } });
+  const ready = new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('call channel timeout')), 8000);
+    ch.subscribe((status) => {
+      if (status === 'SUBSCRIBED') { clearTimeout(t); resolve(ch); }
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { clearTimeout(t); reject(new Error(status)); }
+    });
+  });
+  const entry = { ch, ready };
+  callChannels.set(userId, entry);
+  ready.catch(() => callChannels.delete(userId));
+  return entry;
+}
+
+function setupCalls() {
+  if (Live.callsReady) return;
+  Live.callsReady = true;
+  const mine = callChannel(Live.user.id);
+  mine.ch.on('broadcast', { event: 'signal' }, ({ payload }) => {
+    if (payload && payload.to === Live.user.id) F.onCallSignal(payload);
+  });
+
+  const turn = env.VITE_TURN_URL;
+  if (turn) {
+    F.Calls.ice.push({ urls: turn.split(','), username: env.VITE_TURN_USERNAME, credential: env.VITE_TURN_CREDENTIAL });
+  }
+
+  F.Calls.signal = {
+    myId: Live.user.id,
+    get myName() { return displayName(Live.profile); },
+    async send(toUserId, payload) {
+      const { ch } = await callChannel(toUserId).ready.then(() => callChannel(toUserId));
+      return ch.send({ type: 'broadcast', event: 'signal', payload: { ...payload, to: toUserId, from: Live.user.id } });
+    },
+  };
 }
 
 /* ------------------------------------------------------------

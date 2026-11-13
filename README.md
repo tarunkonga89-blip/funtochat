@@ -39,7 +39,14 @@ A playful, Instagram-DM-style messenger. The UI is still **one self-contained HT
 | Full-screen media viewer: swipe / ← → between photos, tap or wheel or pinch to zoom, download | ✅ |
 | Message menu (⋯): copy, forward, edit (15 min, shows "Edited"), delete for me, unsend for everyone | ✅ live in Realtime |
 | PingBot AI chat (pinned at the top) | ✅ Google Gemini **free tier** — needs `GEMINI_API_KEY` |
-| Voice notes, video, view-once, pin/mute/archive UI, WebRTC calls | ⏳ next steps |
+| Voice notes: tap 🎤 to record (max 2 min), tap again to send; tap ▶ to play | ✅ uploaded to Storage |
+| Video sharing (📎 → pick a video, 50 MB max), plays full screen | ✅ |
+| 1:1 voice & video calls (WebRTC, signaling over Realtime broadcast): accept/decline, mute, camera off, hang up | ✅ logged-in users only |
+| View-once, pin/mute/archive UI, group calls | ⏳ next steps |
+
+> **Calls and networks:** calls use free Google STUN servers, which work on most home Wi-Fi and mobile data.
+> Some office or strict networks need a TURN relay — add a free one (e.g. Metered or Cloudflare) with
+> `VITE_TURN_URL`, `VITE_TURN_USERNAME`, `VITE_TURN_CREDENTIAL` in Vercel's environment variables.
 
 ## Run it
 

@@ -953,6 +953,38 @@
       padding: 2px 6px; border-radius: 6px; color: #fff; background: linear-gradient(135deg, #7C3AED, #EC4899);
     }
 
+    /* voice notes, video, calls */
+    .mic-btn.rec { color: #fff; background: var(--danger); animation: recPulse 1s infinite; }
+    @keyframes recPulse { 50% { box-shadow: 0 0 0 6px rgba(220, 38, 38, .25); } }
+    .rec-bar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; margin-bottom: 6px; border-radius: 12px; background: var(--hover); font-size: 13px; }
+    .rec-bar .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); animation: recPulse 1s infinite; }
+    .rec-bar .grow { flex: 1; }
+    .voice-msg, .video-msg { display: flex; align-items: center; gap: 10px; min-width: 170px; }
+    .voice-msg button, .video-msg .play {
+      width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center;
+      background: rgba(255, 255, 255, .25); font-size: 15px;
+    }
+    .msg.them .voice-msg button, .msg.them .video-msg .play { background: rgba(124, 58, 237, .14); }
+    .video-msg { cursor: pointer; }
+    .lightbox video { max-width: 100%; max-height: 82vh; border-radius: 12px; background: #000; }
+
+    .call-screen {
+      position: fixed; inset: 0; z-index: 96; color: #fff;
+      background: radial-gradient(circle at 30% 20%, #4C1D95, #18151F 70%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    }
+    .call-screen #callRemote { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; }
+    .call-screen #callLocal { position: absolute; right: 18px; top: 18px; width: 150px; border-radius: 14px; background: #000; z-index: 2; transform: scaleX(-1); }
+    .call-info { position: relative; z-index: 2; text-align: center; text-shadow: 0 1px 6px rgba(0, 0, 0, .5); }
+    .call-info .avatar { width: 96px; height: 96px; font-size: 32px; margin: 0 auto 12px; }
+    .call-info h2 { margin: 0; font-size: 24px; }
+    .call-info p { margin: 4px 0 0; opacity: .85; }
+    .call-controls { position: absolute; bottom: 36px; left: 0; right: 0; display: flex; justify-content: center; gap: 18px; z-index: 2; }
+    .call-controls button { width: 60px; height: 60px; border-radius: 50%; font-size: 24px; background: rgba(255, 255, 255, .18); color: #fff; }
+    .call-controls button.off { background: #fff; color: #111; }
+    .call-controls .end { background: #DC2626; }
+    .call-controls .accept { background: #16A34A; }
+
     @media (prefers-reduced-motion: reduce) {
       .sticker-emoji { animation: none; }
       .lightbox img { transition: none; }
@@ -1084,6 +1116,7 @@
           </button>
           <textarea id="msgInput" rows="1" placeholder="Type something fun…" aria-label="Message" autocomplete="off"></textarea>
           <button class="icon-btn" id="emojiBtn" aria-label="Open emoji picker" aria-expanded="false" title="Emoji" type="button">😊</button>
+          <button class="icon-btn mic-btn" id="micBtn" aria-label="Record a voice note" title="Voice note" type="button">🎤</button>
           <button class="icon-btn gif-btn" id="gifBtn" aria-label="GIFs, stickers and memes" aria-expanded="false" aria-controls="gifPanel" title="GIFs, stickers & memes" type="button"><span>GIF</span></button>
           <button class="send-btn" id="sendBtn" aria-label="Send message" type="button"></button>
         </div>
@@ -1106,11 +1139,16 @@
             <button type="button" class="meme-send" id="memeSend">Send meme 🚀</button>
           </div>
         </div>
+        <div class="rec-bar hidden" id="recBar" role="status">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="grow">Recording… <b id="recTime">0:00</b> — tap 🎤 to send</span>
+          <button class="icon-btn sm" id="recCancel" aria-label="Cancel recording" type="button">🗑️</button>
+        </div>
         <div class="reply-preview edit-preview hidden" id="editPreview">
           <div class="grow"><b>✏️ Editing message</b> — press Enter to save</div>
           <button class="icon-btn sm" id="cancelEdit" aria-label="Cancel editing" type="button">✕</button>
         </div>
-        <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt,.zip" />
+        <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip" />
       </div>
     </section>
   </main>
@@ -1164,6 +1202,7 @@
   <button class="lb-nav prev" id="lbPrev" aria-label="Previous image" type="button">‹</button>
   <button class="lb-nav next" id="lbNext" aria-label="Next image" type="button">›</button>
   <img id="lightboxImg" alt="Shared image preview" />
+  <video id="lightboxVideo" class="hidden" controls playsinline></video>
   <p class="lb-caption hidden" id="lbCaption"></p>
 </div>
 
@@ -1192,6 +1231,17 @@
     </div>
     <div class="contact-list" id="forwardList"></div>
   </div>
+</div>
+
+<div class="call-screen hidden" id="callScreen" role="dialog" aria-modal="true" aria-label="Call">
+  <video id="callRemote" autoplay playsinline></video>
+  <video id="callLocal" autoplay playsinline muted class="hidden"></video>
+  <div class="call-info">
+    <span class="avatar" id="callAvatar" aria-hidden="true"></span>
+    <h2 id="callName"></h2>
+    <p id="callStatus">Calling…</p>
+  </div>
+  <div class="call-controls" id="callControls"></div>
 </div>
 
 <div class="msg-menu hidden" id="msgMenu" role="menu" aria-label="Message actions"></div>
@@ -1414,6 +1464,11 @@ function fmtSize(bytes = 0) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function fmtDur(sec = 0) {
+  const s = Math.max(0, Math.round(sec || 0));
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 }
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -1656,6 +1711,9 @@ const Store = {
       };
     }
     Bot.attach();
+    this.state.conversations.forEach((c) => c.messages.forEach((m) => {
+      if (m.video && String(m.video).startsWith('blob:')) m.video = '';
+    }));
     document.documentElement.dataset.theme = this.state.theme || 'light';
   },
 
@@ -1873,6 +1931,8 @@ function lastPreview(conv) {
   let body;
   if (last.type === 'image') body = last.gif ? '🎞️ GIF' : last.meme ? '😂 Meme' : '📷 Photo';
   else if (last.type === 'sticker') body = (last.sticker || '') + ' Sticker';
+  else if (last.type === 'voice') body = '🎤 Voice note';
+  else if (last.type === 'video') body = '🎬 Video';
   else if (last.type === 'file') body = '📄 ' + (last.file ? last.file.name : 'File');
   else body = (last.text || '').replace(/\s+/g, ' ');
   if (body.length > 70) body = body.slice(0, 70) + '…';
@@ -1964,6 +2024,19 @@ function bubbleInner(msg) {
   if (msg.type === 'sticker') {
     return (msg.forwarded ? '<span class="fwd-label" style="font-size:11.5px">↪ Forwarded</span>' : '') +
       '<span class="sticker-emoji" role="img" aria-label="Sticker ' + esc(msg.sticker || '') + '">' + esc(msg.sticker || '🙂') + '</span>';
+  }
+
+  if (msg.type === 'voice') {
+    const playing = VoicePlayer.id === msg.id;
+    return inner + '<div class="voice-msg"><button type="button" data-voice="' + esc(msg.id) + '" aria-label="' + (playing ? 'Pause' : 'Play') + ' voice note">' + (playing ? '⏸' : '▶') + '</button>' +
+      '<span>🎤 Voice note · ' + fmtDur(msg.duration) + '</span></div>';
+  }
+
+  if (msg.type === 'video') {
+    return inner + '<div class="video-msg" data-video="' + esc(msg.id) + '" role="button" tabindex="0" aria-label="Play video"><span class="play" aria-hidden="true">▶</span>' +
+      '<span>🎬 ' + esc((msg.file && msg.file.name) || 'Video') + (msg.duration ? ' · ' + fmtDur(msg.duration) : '') +
+      (msg.video ? '' : '<br><small>Not available any more</small>') + '</span></div>' +
+      (msg.text ? '<div class="caption">' + linkify(msg.text) + '</div>' : '');
   }
 
   if (msg.type === 'image' && msg.image) {
@@ -2190,7 +2263,7 @@ function renderAttachment() {
   wrap.classList.remove('hidden');
   $('#attachIcon').innerHTML = a.kind === 'image' && a.dataUrl
     ? '<img src="' + a.dataUrl + '" alt="" style="width:34px;height:34px;border-radius:8px;object-fit:cover" />'
-    : '📄';
+    : a.kind === 'video' ? '🎬' : '📄';
   $('#attachName').textContent = a.name + (a.size ? ' · ' + fmtSize(a.size) : '');
 }
 
@@ -2209,6 +2282,8 @@ function updateSendBtn() {
    ============================================================ */
 function headText(msg) {
   if (msg.type === 'sticker') return msg.sticker || '🙂';
+  if (msg.type === 'voice') return '🎤 Voice note';
+  if (msg.type === 'video') return '🎬 Video';
   if (msg.type === 'image') return (msg.gif ? '🎞️ GIF' : msg.meme ? '😂 Meme' : '📷 Photo') + (msg.text ? ' — ' + msg.text : '');
   if (msg.type === 'file') return '📄 ' + (msg.file ? msg.file.name : 'File');
   return msg.text || '';
@@ -2385,7 +2460,27 @@ async function downloadViewerItem() {
   }
 }
 
+function openVideo(src) {
+  if (!src) { toast('This video is not available any more'); return; }
+  const v = $('#lightboxVideo');
+  $('#lightboxImg').classList.add('hidden');
+  ['#lbPrev', '#lbNext', '#lbZoom', '#lbDownload'].forEach((id) => $(id).classList.add('hidden'));
+  $('#lbCount').textContent = '';
+  $('#lbCaption').classList.add('hidden');
+  v.classList.remove('hidden');
+  v.src = src;
+  $('#lightbox').classList.remove('hidden');
+  v.play().catch(() => {});
+  $('#lightboxClose').focus();
+}
+
 function closeLightbox() {
+  const v = $('#lightboxVideo');
+  v.pause();
+  v.removeAttribute('src');
+  v.classList.add('hidden');
+  $('#lightboxImg').classList.remove('hidden');
+  ['#lbZoom', '#lbDownload'].forEach((id) => $(id).classList.remove('hidden'));
   $('#lightbox').classList.add('hidden');
   $('#lightboxImg').removeAttribute('src');
   resetZoom();
@@ -2552,6 +2647,7 @@ async function replyFromBot(convId, msgId) {
 function currentAttachmentPayload(text) {
   const a = UI.attachment;
   if (!a) return null;
+  if (a.kind === 'video') return { type: 'video', video: a.url, duration: a.duration, text: text || '', file: { name: a.name, size: a.size }, _raw: a.raw };
   if (a.kind === 'image') return { type: 'image', image: a.dataUrl, text: text || '', file: { name: a.name, size: a.size }, _raw: a.raw };
   return { type: 'file', file: { name: a.name, size: a.size }, text: text || '', _raw: a.raw };
 }
@@ -2626,9 +2722,23 @@ function downscaleImage(file) {
   });
 }
 
+function videoDuration(url) {
+  return new Promise((resolve) => {
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    v.onloadedmetadata = () => resolve(isFinite(v.duration) ? v.duration : 0);
+    v.onerror = () => resolve(0);
+    v.src = url;
+  });
+}
+
 async function handleFile(file) {
   if (!file) return;
-  if (file.type.startsWith('image/')) {
+  if (file.size > 50 * 1024 * 1024) { toast('That file is over 50 MB 😕'); $('#fileInput').value = ''; return; }
+  if (file.type.startsWith('video/')) {
+    const url = URL.createObjectURL(file);
+    UI.attachment = { kind: 'video', name: file.name, size: file.size, url, duration: await videoDuration(url), raw: file };
+  } else if (file.type.startsWith('image/')) {
     const dataUrl = await downscaleImage(file);
     if (!dataUrl) { toast('Could not read that image 😕'); return; }
     UI.attachment = { kind: 'image', name: file.name, size: file.size, dataUrl, raw: file };
@@ -2984,6 +3094,8 @@ function forwardPayload(msg) {
   if (msg.type === 'image') { p.image = msg.image; p.gif = !!msg.gif; p.meme = !!msg.meme; p.gifMeta = msg.gifMeta; if (msg.file) p.file = { ...msg.file }; }
   if (msg.type === 'file') { p.file = msg.file ? { ...msg.file } : { name: 'File', size: 0 }; p.mediaUrl = msg.mediaUrl || ''; }
   if (msg.type === 'sticker') p.sticker = msg.sticker;
+  if (msg.type === 'voice') { p.audio = msg.audio; p.duration = msg.duration; }
+  if (msg.type === 'video') { p.video = msg.video; p.duration = msg.duration; p.file = msg.file ? { ...msg.file } : { name: 'Video', size: 0 }; }
   return p;
 }
 
@@ -3072,6 +3184,310 @@ function bindMessageActions() {
 }
 
 /* ============================================================
+   14d. VOICE NOTES — tap 🎤 to record, tap again to send
+   ============================================================ */
+const VoicePlayer = { id: null, audio: null };
+
+function toggleVoice(msgId) {
+  const conv = Store.getOpen();
+  const msg = conv && conv.messages.find((m) => m.id === msgId);
+  if (!msg || !msg.audio) { toast('This voice note is not available'); return; }
+  if (VoicePlayer.id === msgId) {
+    VoicePlayer.audio.pause();
+    VoicePlayer.id = null;
+    renderConversation();
+    return;
+  }
+  if (VoicePlayer.audio) VoicePlayer.audio.pause();
+  const a = new Audio(msg.audio);
+  VoicePlayer.audio = a;
+  VoicePlayer.id = msgId;
+  a.onended = () => { VoicePlayer.id = null; renderConversation(); };
+  a.play().catch(() => { VoicePlayer.id = null; toast('Could not play this voice note'); renderConversation(); });
+  renderConversation();
+}
+
+const Recorder = { rec: null, stream: null, chunks: [], started: 0, timer: null, cancelled: false };
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => resolve('');
+    r.readAsDataURL(blob);
+  });
+}
+
+async function startRecording() {
+  const conv = Store.getOpen();
+  if (!conv || conv.blocked) return;
+  if (!navigator.mediaDevices || !window.MediaRecorder) { toast('Voice notes are not supported in this browser'); return; }
+  try {
+    Recorder.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch {
+    toast('Allow microphone access to record 🎤');
+    return;
+  }
+  const type = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find((t) => MediaRecorder.isTypeSupported(t)) || '';
+  Recorder.rec = new MediaRecorder(Recorder.stream, type ? { mimeType: type } : undefined);
+  Recorder.chunks = [];
+  Recorder.cancelled = false;
+  Recorder.convId = conv.id;
+  Recorder.rec.ondataavailable = (e) => { if (e.data && e.data.size) Recorder.chunks.push(e.data); };
+  Recorder.rec.onstop = finishRecording;
+  Recorder.rec.start();
+  Recorder.started = Date.now();
+  $('#micBtn').classList.add('rec');
+  $('#micBtn').setAttribute('aria-label', 'Stop and send voice note');
+  $('#recBar').classList.remove('hidden');
+  $('#recTime').textContent = '0:00';
+  Recorder.timer = setInterval(() => {
+    const sec = (Date.now() - Recorder.started) / 1000;
+    $('#recTime').textContent = fmtDur(sec);
+    if (sec >= 120) stopRecording(false);   // 2 minute limit
+  }, 250);
+}
+
+function stopRecording(cancel) {
+  if (!Recorder.rec) return;
+  Recorder.cancelled = !!cancel;
+  clearInterval(Recorder.timer);
+  if (Recorder.rec.state !== 'inactive') Recorder.rec.stop();
+  Recorder.stream.getTracks().forEach((t) => t.stop());
+  $('#micBtn').classList.remove('rec');
+  $('#micBtn').setAttribute('aria-label', 'Record a voice note');
+  $('#recBar').classList.add('hidden');
+}
+
+async function finishRecording() {
+  const duration = (Date.now() - Recorder.started) / 1000;
+  const convId = Recorder.convId;
+  const blob = new Blob(Recorder.chunks, { type: (Recorder.rec && Recorder.rec.mimeType) || 'audio/webm' });
+  Recorder.rec = null;
+  if (Recorder.cancelled) return;
+  if (duration < 0.8 || !blob.size) { toast('Too short — tap 🎤, talk, then tap again'); return; }
+  const audio = await blobToDataUrl(blob);
+  sendTo(convId, { type: 'voice', audio, duration, text: '', _raw: blob });
+}
+
+/* ============================================================
+   14e. CALLS — 1:1 WebRTC voice/video, signaling via src/live.js
+   ============================================================ */
+const Calls = {
+  signal: null,      // { myId, myName, send(toUserId, payload) } — set by src/live.js
+  ice: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }],
+  cur: null,
+};
+
+function callUI() {
+  const c = Calls.cur;
+  const screen = $('#callScreen');
+  if (!c) { screen.classList.add('hidden'); return; }
+  screen.classList.remove('hidden');
+  const conv = Store.get(c.convId) || { name: c.name, color: '#7C3AED' };
+  $('#callName').textContent = conv.name || c.name || 'Call';
+  const av = $('#callAvatar');
+  av.textContent = conv.avatarUrl ? '' : initials(conv.name || c.name || '');
+  av.style.cssText = conv.avatarUrl ? 'background:url(' + conv.avatarUrl + ') center/cover' : avatarBg(conv.color || '#7C3AED');
+  const showVideo = c.kind === 'video' && c.state === 'connected';
+  $('#callRemote').style.visibility = showVideo ? 'visible' : 'hidden';
+  $('#callLocal').classList.toggle('hidden', c.kind !== 'video' || !c.local);
+  $('.call-info').style.visibility = showVideo ? 'hidden' : 'visible';
+
+  const label = {
+    calling: 'Calling…', incoming: 'Incoming ' + (c.kind === 'video' ? 'video' : 'voice') + ' call…',
+    connecting: 'Connecting…', connected: fmtDur((Date.now() - c.connectedAt) / 1000), ended: c.endText || 'Call ended',
+  }[c.state] || '';
+  $('#callStatus').textContent = label;
+
+  const btns = c.state === 'incoming'
+    ? '<button type="button" class="end" data-call="decline" aria-label="Decline">✕</button><button type="button" class="accept" data-call="accept" aria-label="Accept">' + (c.kind === 'video' ? '📹' : '📞') + '</button>'
+    : c.state === 'ended' ? ''
+      : '<button type="button" data-call="mic" class="' + (c.micOff ? 'off' : '') + '" aria-label="' + (c.micOff ? 'Unmute' : 'Mute') + '">' + (c.micOff ? '🔇' : '🎙️') + '</button>' +
+        (c.kind === 'video' ? '<button type="button" data-call="cam" class="' + (c.camOff ? 'off' : '') + '" aria-label="' + (c.camOff ? 'Turn camera on' : 'Turn camera off') + '">' + (c.camOff ? '🚫' : '📷') + '</button>' : '') +
+        '<button type="button" class="end" data-call="hangup" aria-label="Hang up">📞</button>';
+  const ctr = $('#callControls');
+  if (ctr.dataset.html !== btns) { ctr.innerHTML = btns; ctr.dataset.html = btns; }
+}
+
+async function getMedia(kind) {
+  try {
+    return await navigator.mediaDevices.getUserMedia({ audio: true, video: kind === 'video' });
+  } catch {
+    if (kind === 'video') {
+      try { toast('Camera unavailable — using voice only'); return await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { /* fall through */ }
+    }
+    return null;
+  }
+}
+
+function makePeer() {
+  const c = Calls.cur;
+  const pc = new RTCPeerConnection({ iceServers: Calls.ice });
+  c.pc = pc;
+  c.pendingIce = c.pendingIce || [];
+  c.local.getTracks().forEach((t) => pc.addTrack(t, c.local));
+  pc.onicecandidate = (e) => {
+    if (e.candidate && Calls.cur === c) Calls.signal.send(c.peerId, { type: 'ice', callId: c.id, candidate: e.candidate.toJSON() });
+  };
+  pc.ontrack = (e) => { $('#callRemote').srcObject = e.streams[0]; };
+  pc.onconnectionstatechange = () => {
+    if (Calls.cur !== c) return;
+    if (pc.connectionState === 'connected' && c.state !== 'connected') {
+      c.state = 'connected';
+      c.connectedAt = Date.now();
+      c.tick = setInterval(callUI, 1000);
+      callUI();
+    }
+    if (pc.connectionState === 'failed') endCall('Call failed — network blocked it', true);
+  };
+  return pc;
+}
+
+async function flushIce(c) {
+  const list = c.pendingIce || [];
+  c.pendingIce = [];
+  for (const cand of list) { try { await c.pc.addIceCandidate(cand); } catch { /* ignore */ } }
+}
+
+async function startCall(kind) {
+  const conv = Store.getOpen();
+  if (!conv) return;
+  if (conv.bot) { toast('PingBot can’t take calls 🤖'); return; }
+  if (!Calls.signal || !conv.otherId) { toast('Calls work when you’re logged in and chatting with a real person 📞'); return; }
+  if (conv.blocked) { toast('You blocked this contact'); return; }
+  if (Calls.cur) { toast('You are already in a call'); return; }
+  const local = await getMedia(kind);
+  if (!local) { toast('Allow microphone' + (kind === 'video' ? '/camera' : '') + ' access to call'); return; }
+  const c = Calls.cur = {
+    id: 'call_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    convId: conv.id, peerId: conv.otherId, name: conv.name,
+    kind: local.getVideoTracks().length ? kind : 'audio', role: 'caller', state: 'calling', local, pendingIce: [],
+  };
+  $('#callLocal').srcObject = local;
+  callUI();
+  const pc = makePeer();
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  try {
+    await Calls.signal.send(c.peerId, { type: 'invite', callId: c.id, convId: c.convId, kind: c.kind, from: Calls.signal.myId, fromName: Calls.signal.myName, sdp: offer });
+  } catch {
+    endCall('Could not reach them', true);
+    return;
+  }
+  c.timeout = setTimeout(() => {
+    if (Calls.cur === c && c.state === 'calling') {
+      Calls.signal.send(c.peerId, { type: 'cancel', callId: c.id });
+      endCall('No answer', true);
+    }
+  }, 35000);
+}
+
+async function acceptCall() {
+  const c = Calls.cur;
+  if (!c || c.state !== 'incoming') return;
+  c.state = 'connecting';
+  callUI();
+  const local = await getMedia(c.kind);
+  if (!local) {
+    Calls.signal.send(c.peerId, { type: 'decline', callId: c.id });
+    endCall('Microphone blocked', true);
+    return;
+  }
+  c.local = local;
+  $('#callLocal').srcObject = local;
+  const pc = makePeer();
+  await pc.setRemoteDescription(c.offer);
+  await flushIce(c);
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  Calls.signal.send(c.peerId, { type: 'accept', callId: c.id, sdp: answer });
+  callUI();
+}
+
+function hangUp() {
+  const c = Calls.cur;
+  if (!c) return;
+  const type = c.state === 'incoming' ? 'decline' : c.state === 'calling' ? 'cancel' : 'end';
+  Calls.signal.send(c.peerId, { type, callId: c.id });
+  endCall(type === 'decline' ? 'Declined' : 'Call ended', true);
+}
+
+function endCall(text, showBriefly) {
+  const c = Calls.cur;
+  if (!c) return;
+  clearTimeout(c.timeout);
+  clearInterval(c.tick);
+  if (c.local) c.local.getTracks().forEach((t) => t.stop());
+  if (c.pc) { try { c.pc.close(); } catch { /* ignore */ } }
+  $('#callRemote').srcObject = null;
+  $('#callLocal').srcObject = null;
+  c.state = 'ended';
+  c.endText = text;
+  callUI();
+  setTimeout(() => { if (Calls.cur === c) { Calls.cur = null; callUI(); } }, showBriefly ? 1400 : 0);
+}
+
+/** Called by src/live.js for every signaling message addressed to me. */
+async function onCallSignal(m) {
+  if (!m || !m.type) return;
+  const c = Calls.cur;
+  if (m.type === 'invite') {
+    if (c) { Calls.signal.send(m.from, { type: 'busy', callId: m.callId }); return; }
+    const conv = Store.get(m.convId);
+    if (conv && conv.blocked) { Calls.signal.send(m.from, { type: 'decline', callId: m.callId }); return; }
+    Calls.cur = { id: m.callId, convId: m.convId, peerId: m.from, name: m.fromName, kind: m.kind, role: 'callee', state: 'incoming', offer: m.sdp, pendingIce: [] };
+    callUI();
+    Calls.cur.timeout = setTimeout(() => { if (Calls.cur && Calls.cur.id === m.callId && Calls.cur.state === 'incoming') endCall('Missed call', true); }, 35000);
+    return;
+  }
+  if (!c || c.id !== m.callId) return;
+  if (m.type === 'ice') {
+    if (c.pc && c.pc.remoteDescription) { try { await c.pc.addIceCandidate(m.candidate); } catch { /* ignore */ } }
+    else c.pendingIce.push(m.candidate);
+  } else if (m.type === 'accept' && c.role === 'caller') {
+    clearTimeout(c.timeout);
+    c.state = 'connecting';
+    callUI();
+    await c.pc.setRemoteDescription(m.sdp);
+    await flushIce(c);
+  } else if (m.type === 'decline') endCall('Declined', true);
+  else if (m.type === 'busy') endCall('Busy on another call', true);
+  else if (m.type === 'cancel') endCall('Missed call', true);
+  else if (m.type === 'end') endCall('Call ended', true);
+}
+
+function bindCallsAndVoice() {
+  $('#callBtn').addEventListener('click', () => startCall('audio'));
+  $('#videoBtn').addEventListener('click', () => startCall('video'));
+  $('#callControls').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-call]');
+    const c = Calls.cur;
+    if (!b || !c) return;
+    const act = b.getAttribute('data-call');
+    if (act === 'accept') acceptCall();
+    else if (act === 'decline' || act === 'hangup') hangUp();
+    else if (act === 'mic' && c.local) { c.micOff = !c.micOff; c.local.getAudioTracks().forEach((t) => { t.enabled = !c.micOff; }); callUI(); }
+    else if (act === 'cam' && c.local) { c.camOff = !c.camOff; c.local.getVideoTracks().forEach((t) => { t.enabled = !c.camOff; }); callUI(); }
+  });
+  window.addEventListener('beforeunload', () => { if (Calls.cur) hangUp(); });
+
+  $('#micBtn').addEventListener('click', () => (Recorder.rec ? stopRecording(false) : startRecording()));
+  $('#recCancel').addEventListener('click', () => stopRecording(true));
+
+  $('#messages').addEventListener('click', (e) => {
+    const v = e.target.closest('[data-voice]');
+    if (v) { toggleVoice(v.getAttribute('data-voice')); return; }
+    const vid = e.target.closest('[data-video]');
+    if (vid) {
+      const conv = Store.getOpen();
+      const msg = conv && conv.messages.find((m) => m.id === vid.getAttribute('data-video'));
+      if (msg) openVideo(msg.video);
+    }
+  });
+}
+
+/* ============================================================
    15. EVENT WIRING
    ============================================================ */
 function openConversationUI(id) {
@@ -3151,8 +3567,6 @@ function bindEvents() {
     if (Store.state.openId) openHead(Store.state.openId);
   });
 
-  $('#callBtn').addEventListener('click', () => toast('Voice calls are not part of this demo 📞'));
-  $('#videoBtn').addEventListener('click', () => toast('Video calls are not part of this demo 📹'));
 
   /* ---- info panel toggles ---- */
   $('#muteBtn').addEventListener('click', () => {
@@ -3369,6 +3783,7 @@ function init() {
   bindViewer();
   bindGifPanel();
   bindMessageActions();
+  bindCallsAndVoice();
   renderAll();
 
   if (Store.state.openId && Store.getOpen()) {
@@ -3390,7 +3805,7 @@ window.PingMe = {
     markMineSeen: Store.markMineSeen, toggleMute: Store.toggleMute, toggleBlock: Store.toggleBlock,
     editMessage: Store.editMessage, deleteForMe: Store.deleteForMe, deleteForAll: Store.deleteForAll,
   },
-  renderGifPanel,
+  renderGifPanel, Calls, onCallSignal,
   $, $$, later, esc, initials, avatarBg,
   renderAll, renderConversation, renderChatList, renderHeads,
   openConversationUI, openHead, closeModal, closeLightbox, openLightbox,
